@@ -1,10 +1,5 @@
 import { Link } from "react-router-dom";
-
-const mockTools = [
-  { id: 1, name: "Power Drill", category: "Tools", condition: "Good", available: true },
-  { id: 2, name: "Ladder", category: "Home", condition: "Fair", available: false },
-  { id: 3, name: "Camping Tent", category: "Outdoors", condition: "Great", available: true },
-];
+import mockTools from "../mock/tools.mock";
 
 export default function ToolsList() {
   return (
