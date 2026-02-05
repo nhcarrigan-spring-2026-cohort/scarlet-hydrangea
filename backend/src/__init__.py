@@ -1,26 +1,36 @@
 import os
 from flask import Flask
-from sqlalchemy import text
-from src.extensions import db
 
-def create_app():
+from src.config import get_config
+from src.extensions import db, migrate, jwt, init_extensions
+
+
+def create_app(config=None):
+    """Application factory
+    
+    Args:
+        config: Config class to use. If None, uses FLASK_ENV to determine config.
+    
+    Returns:
+        Flask app instance with all extensions initialized
+    """
     app = Flask(__name__)
-
-    app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
-    db.init_app(app)
-
+    
+    # Load config
+    if config is None:
+        config = get_config()
+    app.config.from_object(config)
+    
+    # Initialize extensions
+    init_extensions(app)
+    
+    # Home endpoint
     @app.route('/')
     def home():
-        return "Hello, Home!"
+        return {'message': 'Scarlet Hydrangea Backend API'}, 200
     
-    @app.route('/test-db')
-    def test_db():
-        try:
-            db.session.execute(text("SELECT 1"))
-            return '<h1>Connection Successful</h1>'
-        except:
-            return '<h1>Connection Failed</h1>'
-
+    # Register blueprints
+    from app.api import health_bp
+    app.register_blueprint(health_bp)
+    
     return app

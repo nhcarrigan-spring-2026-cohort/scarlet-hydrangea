@@ -1,0 +1,10 @@
+Metadata-Version: 2.4
+Name: backend
+Version: 0.1.0
+Summary: Add your description here
+Requires-Python: >=3.12
+Description-Content-Type: text/markdown
+Requires-Dist: flask>=3.1.2
+Requires-Dist: flask-sqlalchemy>=3.1.1
+Requires-Dist: psycopg[binary]>=3.3.2
+Requires-Dist: python-dotenv>=1.2.1
