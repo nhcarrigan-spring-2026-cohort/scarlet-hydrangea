@@ -1,10 +1,6 @@
 import { useParams, Link } from "react-router-dom";
-
-const mockTools = [
-  { id: 1, name: "Power Drill", category: "Tools", condition: "Good", available: true },
-  { id: 2, name: "Ladder", category: "Home", condition: "Fair", available: false },
-  { id: 3, name: "Camping Tent", category: "Outdoors", condition: "Great", available: true },
-];
+import mockTools from "../mock/tools.mock.js";
+import StatusBadge from "../components/StatusBadge.jsx";
 
 export default function ToolDetail() {
   const { id } = useParams();
@@ -12,7 +8,7 @@ export default function ToolDetail() {
 
   if (!tool) {
     return (
-      <div style={{ padding: 16 }}>
+      <div className="container-narrow">
         <h1>Tool not found</h1>
         <Link to="/tools">Back to Tools</Link>
       </div>
@@ -20,13 +16,38 @@ export default function ToolDetail() {
   }
 
   return (
-    <div style={{ padding: 16 }}>
-      <Link to="/tools">← Back</Link>
-      <h1 style={{ marginTop: 8 }}>{tool.name}</h1>
-      <p>{tool.category} • {tool.condition}</p>
-      <p>
-        Status: <strong>{tool.available ? "Available" : "Unavailable"}</strong>
-      </p>
+    <div className="container-narrow">
+      <Link to="/tools" className="muted">
+        ← Back to Tools
+      </Link>
+
+      <div className="card-lg" style={{ marginTop: 16 }}>
+        <h1 style={{ marginBottom: 12 }}>{tool.name}</h1>
+
+        <p>
+          <strong>Category:</strong> {tool.category}
+        </p>
+
+        <p>
+          <strong>Condition:</strong> {tool.condition}
+        </p>
+
+        <p style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <strong>Status:</strong> <StatusBadge available={tool.available} />
+        </p>
+
+        <button
+          className={`btn btn-primary ${tool.available ? "" : "btn-disabled"}`}
+          disabled={!tool.available}
+          style={{ marginTop: 16 }}
+        >
+          {tool.available ? "Request to Borrow" : "Unavailable"}
+        </button>
+
+        <p className="note" style={{ marginTop: 10 }}>
+          
+        </p>
+      </div>
     </div>
   );
 }

@@ -5,7 +5,7 @@ export default function Navbar() {
     <header className="nav">
       <div className="nav__inner">
         <NavLink to="/" className="nav__brand">
-          Tool Library
+          Community Tool Library
         </NavLink>
 
         <nav className="nav__links" aria-label="Primary navigation">

@@ -1,31 +1,47 @@
-import { Link } from "react-router-dom";
-
-const mockTools = [
-  { id: 1, name: "Power Drill", category: "Tools", condition: "Good", available: true },
-  { id: 2, name: "Ladder", category: "Home", condition: "Fair", available: false },
-  { id: 3, name: "Camping Tent", category: "Outdoors", condition: "Great", available: true },
-];
+import { useMemo, useState } from "react";
+import mockTools from "../mock/tools.mock.js";
+import ToolCard from "../components/ToolCard.jsx";
 
 export default function ToolsList() {
+  const [query, setQuery] = useState("");
+
+  const filteredTools = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return mockTools;
+    return mockTools.filter((t) => t.name.toLowerCase().includes(q));
+  }, [query]);
+
   return (
-    <div style={{ padding: 16 }}>
+    <div className="container">
       <h1>Tools</h1>
 
-      <div style={{ display: "grid", gap: 12, marginTop: 12 }}>
-        {mockTools.map((t) => (
-          <div key={t.id} style={{ border: "1px solid #ddd", borderRadius: 8, padding: 12 }}>
-            <h3 style={{ margin: 0 }}>{t.name}</h3>
-            <p style={{ margin: "6px 0" }}>
-              {t.category} • {t.condition}
-            </p>
-            <strong>{t.available ? "Available" : "Unavailable"}</strong>
+      <input
+        className="input"
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        placeholder="Search tools..."
+      />
 
-            <div style={{ marginTop: 8 }}>
-              <Link to={`/tools/${t.id}`}>View Details</Link>
-            </div>
-          </div>
+      <div
+        style={{
+          display: "grid",
+          gap: 12,
+          marginTop: 16,
+          gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
+        }}
+      >
+        {filteredTools.map((t) => (
+          <ToolCard key={t.id} tool={t} />
         ))}
       </div>
+
+      {filteredTools.length === 0 && (
+        <p className="muted" style={{ marginTop: 16 }}>
+          No tools match your search.
+        </p>
+      )}
     </div>
   );
 }
+
+
