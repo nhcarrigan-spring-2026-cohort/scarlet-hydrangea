@@ -1,10 +1,6 @@
 import { useParams, Link } from "react-router-dom";
+import mockTools from "../mock/tools.mock";
 
-const mockTools = [
-  { id: 1, name: "Power Drill", category: "Tools", condition: "Good", available: true },
-  { id: 2, name: "Ladder", category: "Home", condition: "Fair", available: false },
-  { id: 3, name: "Camping Tent", category: "Outdoors", condition: "Great", available: true },
-];
 
 export default function ToolDetail() {
   const { id } = useParams();
@@ -20,13 +16,52 @@ export default function ToolDetail() {
   }
 
   return (
-    <div style={{ padding: 16 }}>
-      <Link to="/tools">← Back</Link>
-      <h1 style={{ marginTop: 8 }}>{tool.name}</h1>
-      <p>{tool.category} • {tool.condition}</p>
+  <div style={{ padding: 24, maxWidth: 600, margin: "0 auto" }}>
+    <Link to="/tools" style={{ textDecoration: "none", color: "#555" }}>
+      ← Back to Tools
+    </Link>
+
+    <div
+      style={{
+        marginTop: 16,
+        padding: 20,
+        border: "1px solid #ddd",
+        borderRadius: 8,
+      }}
+    >
+      <h1 style={{ marginBottom: 12 }}>{tool.name}</h1>
+
       <p>
-        Status: <strong>{tool.available ? "Available" : "Unavailable"}</strong>
+        <strong>Category:</strong> {tool.category}
       </p>
+
+      <p>
+        <strong>Condition:</strong> {tool.condition}
+      </p>
+
+      <p>
+        <strong>Status:</strong>{" "}
+        <span style={{ color: tool.available ? "green" : "red" }}>
+          {tool.available ? "Available" : "Unavailable"}
+        </span>
+      </p>
+
+      <button
+        disabled={!tool.available}
+        style={{
+          marginTop: 16,
+          padding: "10px 16px",
+          borderRadius: 4,
+          border: "none",
+          backgroundColor: tool.available ? "#2563eb" : "#aaa",
+          color: "#fff",
+          cursor: tool.available ? "pointer" : "not-allowed",
+        }}
+      >
+        Request to Borrow
+      </button>
     </div>
-  );
+  </div>
+);
+
 }
