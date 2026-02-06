@@ -75,9 +75,9 @@ uv sync
    # Edit .env with your PostgreSQL credentials
    ```
 
-5. **Create database:**
+5. **Initialize database migrations:**
    ```bash
-   python create_db.py
+   flask db init
    ```
 
 6. **Initialize migrations:**
