@@ -44,9 +44,7 @@ export default function ToolDetail() {
           {tool.available ? "Request to Borrow" : "Unavailable"}
         </button>
 
-        <p className="note" style={{ marginTop: 10 }}>
-          
-        </p>
+        <p className="note" style={{ marginTop: 10 }}></p>
       </div>
     </div>
   );
