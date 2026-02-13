@@ -23,6 +23,9 @@ def create_app(config=None):
     
     # Initialize extensions
     init_extensions(app)
+
+    # Register models
+    from app import models
     
     # Home endpoint
     @app.route('/')
