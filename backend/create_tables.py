@@ -9,4 +9,3 @@ app = create_tables()
 
 if __name__ == "__main__":
     app.run(debug=True)
-    os._exit(0)
