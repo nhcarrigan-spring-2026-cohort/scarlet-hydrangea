@@ -1,25 +1,23 @@
 import { NavLink } from "react-router-dom";
 
+const linkClass = ({ isActive }) => ["navLink", isActive && "isActive"].filter(Boolean).join(" ");
+
 export default function Navbar() {
   return (
     <header className="nav">
-      <div className="nav__inner">
-        <NavLink to="/" className="nav__brand">
+      <div className="navInner">
+        <NavLink to="/" className="brand">
           Community Tool Library
         </NavLink>
 
-        <nav className="nav__links" aria-label="Primary navigation">
-          <NavLink
-            to="/"
-            className={({ isActive }) => (isActive ? "nav__link active" : "nav__link")}
-          >
+        <nav className="links">
+          <h2 className="sr-only">Main</h2>
+
+          <NavLink to="/" end className={linkClass}>
             Home
           </NavLink>
 
-          <NavLink
-            to="/tools"
-            className={({ isActive }) => (isActive ? "nav__link active" : "nav__link")}
-          >
+          <NavLink to="/tools" className={linkClass}>
             Tools
           </NavLink>
         </nav>
