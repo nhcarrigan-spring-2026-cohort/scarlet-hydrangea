@@ -1,10 +1,16 @@
 import { useParams, Link } from "react-router-dom";
+import { useState } from "react";
 import mockTools from "../mock/tools.mock.js";
 import StatusBadge from "../components/StatusBadge.jsx";
 
 export default function ToolDetail() {
   const { id } = useParams();
   const tool = mockTools.find((t) => String(t.id) === String(id));
+  const [requestSent, setRequestSent] = useState(false);
+
+  const handleRequest = () => {
+    setRequestSent(true);
+  }
 
   if (!tool) {
     return (
@@ -38,14 +44,16 @@ export default function ToolDetail() {
 
         <button
           className={`btn btn-primary ${tool.available ? "" : "btn-disabled"}`}
-          disabled={!tool.available}
+          disabled={!tool.available || requestSent}
+          onClick={handleRequest}
           style={{ marginTop: 16 }}
         >
-          {tool.available ? "Request to Borrow" : "Unavailable"}
+          {requestSent ? "Request sent ✅" :
+            (tool.available ? "Request to Borrow" : "Unavailable")}
         </button>
 
         <p className="note" style={{ marginTop: 10 }}>
-          
+
         </p>
       </div>
     </div>
