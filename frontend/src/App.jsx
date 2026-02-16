@@ -1,5 +1,6 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import Layout from "./components/Layout.jsx";
+
 import Home from "./pages/Home.jsx";
 import ToolsList from "./pages/ToolsList.jsx";
 import ToolDetail from "./pages/ToolDetail.jsx";

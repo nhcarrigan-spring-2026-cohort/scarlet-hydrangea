@@ -1,5 +1,7 @@
 import { NavLink } from "react-router-dom";
 
+const linkClass = ({ isActive }) => ["nav__link", isActive && "active"].filter(Boolean).join(" ");
+
 export default function Navbar() {
   return (
     <header className="nav">
@@ -8,18 +10,12 @@ export default function Navbar() {
           Community Tool Library
         </NavLink>
 
-        <nav className="nav__links" aria-label="Primary navigation">
-          <NavLink
-            to="/"
-            className={({ isActive }) => (isActive ? "nav__link active" : "nav__link")}
-          >
+        <nav className="nav__links" aria-label="Main">
+          <NavLink to="/" end className={linkClass}>
             Home
           </NavLink>
 
-          <NavLink
-            to="/tools"
-            className={({ isActive }) => (isActive ? "nav__link active" : "nav__link")}
-          >
+          <NavLink to="/tools" className={linkClass}>
             Tools
           </NavLink>
         </nav>
