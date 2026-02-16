@@ -5,7 +5,6 @@ users_bp = Blueprint('users', __name__)
 
 @users_bp.route('/users', methods=['GET'])
 def get_users_endpoint():
-    print("!1")
     users = get_all_users()
     response = [
         {
@@ -27,10 +26,7 @@ def create_user_endpoint():
 
 @users_bp.route('/users/<int:user_id>', methods=['GET'])
 def get_user_endpoint(user_id):
-    print("!2")
     user = get_user(user_id)
-    print(user)
     if not user:
-        print("correct path")
         return jsonify({'error': 'Not found'}), 404
     return jsonify({'id': user.id, 'email': user.email}), 200
