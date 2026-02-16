@@ -13,6 +13,7 @@ class Item(db.Model):
     name = db.Column(db.String(100), nullable=False)
     description = db.Column(db.Text, nullable=True)
     category = db.Column(db.String(50), nullable=True, index=True)
+    condition = db.Column(db.String(20), nullable=False, default='Good')
 
     # Links
     owner_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False, index=True)
