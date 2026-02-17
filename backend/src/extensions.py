@@ -2,12 +2,14 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_jwt_extended import JWTManager
 from flask_marshmallow import Marshmallow
+from flask_cors import CORS
 
 # Initialize extensions (no app reference yet - prevents circular imports)
 db = SQLAlchemy()
 migrate = Migrate()
 jwt = JWTManager()
 ma = Marshmallow()
+cors = CORS()
 
 
 def init_extensions(app):
@@ -16,3 +18,4 @@ def init_extensions(app):
     migrate.init_app(app, db)
     jwt.init_app(app)
     ma.init_app(app)
+    cors.init_app(app, resources={r"/api/*": {"origins": "http://localhost:5173"}})
