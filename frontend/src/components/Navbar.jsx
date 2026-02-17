@@ -18,6 +18,10 @@ export default function Navbar() {
           <NavLink to="/tools" className={linkClass}>
             Tools
           </NavLink>
+
+          <NavLink to="/requests" className={linkClass}>
+            My Requests
+          </NavLink>
         </nav>
       </div>
     </header>
