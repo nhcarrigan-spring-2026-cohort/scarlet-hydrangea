@@ -284,3 +284,14 @@ Run migrations: `flask db upgrade`
 This is a learning space! Ask in PRs, comments, or slack. We're building this together.
 
 **Remember:** Week 1 is infrastructure. Features come later. 🚀
+
+### Creating database tables (workaround)
+
+> I believe the correct way of initializing the db is to go through steps in the "Database Migrations", but I've been having issues with running those. Run the command below to create empty tables for the database. (it's not a "right" way to do this I'd imagine, but it does work)  
+> \- Sebastian
+
+```bash
+# cd to the 'backend folder and run:
+uv run create_tables.py
+#expected output: "Database tables created."
+```

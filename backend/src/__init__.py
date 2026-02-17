@@ -37,5 +37,31 @@ def create_app(config=None):
     from app.api import items_bp
     app.register_blueprint(health_bp)
     app.register_blueprint(items_bp, url_prefix='/api')
+    app.register_blueprint(users_bp, url_prefix='/api')
+
+    
+    return app
+
+
+def create_tables(config=None):
+    """Initialize tables
+    
+    Creates items, users and borrows tables
+    """
+    app = Flask(__name__)
+    
+    # Load config
+    if config is None:
+        config = get_config()
+    app.config.from_object(config)
+    
+    # Initialize extensions
+    init_extensions(app)
+    
+    with app.app_context():
+        db.create_all()
+        print("Database tables created.")
+    
+    os._exit(0)
     
     return app
