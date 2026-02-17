@@ -1,9 +1,12 @@
 from src.extensions import db
 from app.models import User
+from app.schemas import UserSchema
 from werkzeug.security import generate_password_hash
 
 def get_all_users():
-    return User.query.all()
+    all_users = db.session.query(User).all()
+    multiple_users_schema = UserSchema(many = True)
+    return multiple_users_schema.dump(all_users)
 
 def get_user(user_id):
     return User.query.get(user_id)
