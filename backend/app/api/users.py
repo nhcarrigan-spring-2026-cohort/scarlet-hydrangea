@@ -5,18 +5,18 @@ from src.extensions import db
 from app.crud.user import get_all_users, get_user, create_user
 from app.schemas import UserSchema, UserProfileSchema, UserRegistrationSchema
 
-users_bp = Blueprint('users', __name__, url_prefix='/api/users')
+users_bp = Blueprint('users', __name__)
 
 '''
 /api/users route
 '''
-@users_bp.route('/', methods=['GET'])
+@users_bp.route('/users', methods=['GET'])
 def get_users_endpoint():
     users = get_all_users()
     schema = UserSchema(many=True)                  # many=True when dealing with iterable collections of objects.
     return jsonify(schema.dump(users)), 200     
 
-@users_bp.route('<int:user_id>', methods=['GET'])
+@users_bp.route('/users/<int:user_id>', methods=['GET'])
 def get_user_endpoint(user_id):
     user = get_user(user_id)
     if not user:
@@ -24,7 +24,7 @@ def get_user_endpoint(user_id):
     schema = UserProfileSchema()
     return jsonify(schema.dump(user)), 200
 
-@users_bp.route('/', methods=['POST'])
+@users_bp.route('/users', methods=['POST'])
 def create_user_endpoint():
     raw_data = request.get_json()
 
