@@ -9,6 +9,7 @@ export default function ToolDetail() {
   const [tool, setTool] = useState(null);
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState("");
+  const [requestSent, setRequestSent] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -20,7 +21,7 @@ export default function ToolDetail() {
       try {
         const data = await getToolById(id);
         if (isMounted) setTool(data);
-      } catch {
+      } catch (err) {
         if (isMounted) setErrorMsg("We couldn’t load this tool right now.");
       } finally {
         if (isMounted) setLoading(false);
@@ -32,6 +33,10 @@ export default function ToolDetail() {
       isMounted = false;
     };
   }, [id]);
+
+  const handleRequest = () => {
+    setRequestSent(true);
+  };
 
   if (loading) {
     return (
@@ -48,15 +53,11 @@ export default function ToolDetail() {
     return (
       <div className="container-narrow">
         <Link to="/tools">← Back to Tools</Link>
-
         <div className="card-lg" style={{ marginTop: 16 }}>
           <h1 style={{ marginBottom: 8 }}>Something went wrong</h1>
           <p className="muted">{errorMsg}</p>
-
           <div style={{ marginTop: 16 }}>
-            <Link className="btn" to="/tools">
-              Back to Tools
-            </Link>
+            <Link className="btn" to="/tools">Back to Tools</Link>
           </div>
         </div>
       </div>
@@ -67,7 +68,6 @@ export default function ToolDetail() {
     return (
       <div className="container-narrow">
         <Link to="/tools">← Back to Tools</Link>
-
         <div className="card-lg" style={{ marginTop: 16 }}>
           <h1 style={{ marginBottom: 8 }}>Tool not found</h1>
           <p className="muted">We couldn’t find that tool.</p>
@@ -78,30 +78,27 @@ export default function ToolDetail() {
 
   return (
     <div className="container-narrow">
-      <Link to="/tools">← Back to Tools</Link>
+      <Link to="/tools" className="muted">← Back to Tools</Link>
 
       <div className="card-lg" style={{ marginTop: 16 }}>
-        <div
-          style={{
-            display: "flex",
-            alignItems: "flex-start",
-            justifyContent: "space-between",
-            gap: 12,
-          }}
-        >
+        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
           <div>
             <h1 style={{ margin: 0 }}>{tool.name}</h1>
             <p className="muted" style={{ margin: "6px 0 0" }}>
               {tool.category} • {tool.condition}
             </p>
           </div>
-
           <StatusBadge available={tool.available} />
         </div>
 
         <div style={{ marginTop: 18 }}>
-          <button className="btn btn-primary" disabled={!tool.available}>
-            {tool.available ? "Request to Borrow" : "Currently Unavailable"}
+          <button
+            className={`btn btn-primary ${tool.available ? "" : "btn-disabled"}`}
+            disabled={!tool.available || requestSent}
+            onClick={handleRequest}
+            style={{ marginTop: 16 }}
+          >
+            {requestSent ? "Request sent ✅" : (tool.available ? "Request to Borrow" : "Unavailable")}
           </button>
 
           {!tool.available && (
