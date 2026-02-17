@@ -1,5 +1,6 @@
-from app.models.item import Item
 from src.extensions import db
+from app.models import Item
+from app.schemas import ItemSchema
 
 def add_item(name, description, category, owner_id, quantity, condition):
     item = Item(
@@ -16,7 +17,11 @@ def add_item(name, description, category, owner_id, quantity, condition):
     return item
 
 def get_item_by_id(id):
-    return Item.query.get(id)
-
+    item = db.session.get(Item, id)
+    item_schema = ItemSchema()
+    return item_schema.dump(item)
+    
 def get_all_items():
-    return Item.query.all()
+    all_items = db.session.query(Item).all()
+    all_items_schema = ItemSchema(many = True)
+    return all_items_schema.dump(all_items)
