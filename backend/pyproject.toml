@@ -14,3 +14,4 @@ dependencies = [
     "flask-cors>=6.0.2",
     "flask-marshmallow>=1.4.0",
     "marshmallow-sqlalchemy>=1.4.2",
+]
