@@ -9,7 +9,6 @@ class ItemSchema(ma.SQLAlchemyAutoSchema):
     """
     class Meta:
         model = Item
-        load_instance = True
         fields = ("id", "name", "description", "category", "condition","total_quantity", "available_quantity",
                   "is_available", "created_at", "owner", "owner_id")
         dump_only = ("id", "is_available", "available_quantity", "created_at")
@@ -34,18 +33,3 @@ class ItemSchema(ma.SQLAlchemyAutoSchema):
 
     # Display only
     owner = ma.Nested("UserSchema", only=("id", "username", "full_name"), dump_only=True)
-
-class ItemValidationSchema(ma.Schema):
-    """
-    Item schema for validating addition of new tools via (POST /auth/tools)
-    """
-    name = ma.String(required=True, validate=validate.Length(min=3, max=100))
-    description = ma.String(validate=validate.Length(max=1000))
-    category = ma.String(validate=validate.Length(max=50))
-    condition = ma.String(required=True, validate=validate.OneOf(
-        ["new", "like_new", "good", "fair", "poor"],
-        error="Condition must be one of: new, like_new, good, fair, poor"
-    ))
-    total_quantity = ma.Integer(required=True, strict=True, 
-                                validate=validate.Range(min=1, error="Total quantity must be at least 1"))
-    owner_id = ma.Integer(required=True, load_only=True)

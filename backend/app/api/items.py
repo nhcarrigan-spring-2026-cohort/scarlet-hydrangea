@@ -3,7 +3,7 @@ from marshmallow import ValidationError
 from sqlalchemy.exc import IntegrityError
 from src.extensions import db
 from app.crud import get_all_items, add_item, get_item_by_id
-from app.schemas import ItemSchema, ItemValidationSchema
+from app.schemas import ItemSchema
 
 items_bp = Blueprint('items', __name__)
 
@@ -23,7 +23,7 @@ def add_item_endpoint():
     if not raw_data:
         return jsonify({'error': 'Request body is required'}), 400      # Bad Request
     
-    schema = ItemValidationSchema()
+    schema = ItemSchema()
     try:
         data = schema.load(raw_data)
     except ValidationError as err:
