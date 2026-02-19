@@ -34,8 +34,8 @@ def create_app(config=None):
     
     # Register blueprints
     from app.api import health_bp
+    from app.api import users_bp
     from app.api import items_bp
-    app.register_blueprint(items_bp)
     app.register_blueprint(health_bp)
     app.register_blueprint(items_bp, url_prefix='/api')
     app.register_blueprint(users_bp, url_prefix='/api')
