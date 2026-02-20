@@ -10,11 +10,12 @@ class BorrowSchema(ma.SQLAlchemyAutoSchema):
     """
     class Meta:
         model = Borrow
+        load_instance = False
         fields = (
             "id", "item_id", "borrower_id", "status", "requested_at", "approved_at", "borrowed_at", "due_date", "returned_at",
             "item", "borrower"
         )
-        dump_only = ("id", "requested_at", "approved_at", "borrowed_at", "returned_at")
+        dump_only = ("id", "requested_at", "approved_at", "borrowed_at", "due_date", "returned_at")
 
     # Input Fields
     item_id = ma.Integer(required=True, load_only=True)
