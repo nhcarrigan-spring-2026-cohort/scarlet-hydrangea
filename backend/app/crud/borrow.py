@@ -1,7 +1,7 @@
 from src.extensions import db
 from app.models import Borrow, Item, User
 from sqlalchemy import select
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 
 def create_borrow_request(item_id, borrower_id, due_date) -> Borrow:
     """
@@ -125,6 +125,7 @@ def approve_borrow(borrow_id) -> Borrow:
     borrow.status = "approved"
     borrow.approved_at = datetime.now(timezone.utc)
     borrow.borrowed_at = datetime.now(timezone.utc)     # Assuming immediate handoff
+    borrow.due_date = datetime.now(timezone.utc) + timedelta(days=7)    # due date set to 7 days from approval
     
     db.session.commit()
     return borrow
