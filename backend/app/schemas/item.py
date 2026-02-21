@@ -9,7 +9,7 @@ class ItemSchema(ma.SQLAlchemyAutoSchema):
     """
     class Meta:
         model = Item
-        load_instance = True
+        load_instance = False  # returns a dict
         fields = ("id", "name", "description", "category", "condition","total_quantity", "available_quantity",
                   "is_available", "created_at", "owner", "owner_id")
         dump_only = ("id", "is_available", "available_quantity", "created_at")
