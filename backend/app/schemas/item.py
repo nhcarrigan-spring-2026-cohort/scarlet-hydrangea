@@ -16,7 +16,7 @@ class ItemSchema(ma.SQLAlchemyAutoSchema):
 
     # Validated Fields
     name = ma.String(required=True, validate=validate.Length(min=3, max=100))
-    description = ma.String(validate=validate.Length(max=1000))
+    description = ma.String(validate=validate.Length(max=1000), load_default="No Description Provided")
     category = ma.String(validate=validate.Length(max=50))
     condition = ma.String(required=True, validate=validate.OneOf(
         ["new", "like_new", "good", "fair", "poor"],
