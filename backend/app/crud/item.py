@@ -2,18 +2,15 @@ from src.extensions import db
 from app.models.item import Item
 from sqlalchemy import select
 
-def add_item(name, description, category, owner_id, total_quantity, condition):
+def add_item(**item_data):
     """
-    Creates a new item (tool)
+    Creates a new item (tool).
+    Expects kwargs containing item fields
     """
+    available = item_data['total_quantity']
     item = Item(
-        name = name,
-        description = description,
-        category = category,
-        owner_id = owner_id,
-        total_quantity = total_quantity,
-        available_quantity = total_quantity,
-        condition = condition
+        **item_data,
+        available_quantity = available
     )
     db.session.add(item)
     db.session.commit()
