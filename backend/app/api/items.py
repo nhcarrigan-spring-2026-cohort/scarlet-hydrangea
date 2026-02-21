@@ -30,14 +30,7 @@ def add_item_endpoint():
         return jsonify({'error': err.messages}), 400
     
     try:
-        item = add_item(
-            data['name'],
-            data['description'],
-            data['category'],
-            data['owner_id'],
-            data['total_quantity'],
-            data['condition']
-        )
+        item = add_item(**data)     # Unpacking data dictionary to function kwargs
     except IntegrityError:
         db.session.rollback()
         return jsonify({'error': 'Invalid owner_id - user does not exist'}), 400      # Bad Request - user id not found
@@ -48,6 +41,6 @@ def add_item_endpoint():
 def get_item_endpoint(item_id):
     item = get_item_by_id(item_id)
     if not item:
-        return jsonify({'error': 'Tool not found'}, 404)
+        return jsonify({'error': 'Tool not found'}), 404
     schema = ItemSchema()
     return jsonify(schema.dump(item)), 200
