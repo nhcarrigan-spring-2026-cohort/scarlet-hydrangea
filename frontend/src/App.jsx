@@ -4,6 +4,7 @@ import Layout from "./components/Layout.jsx";
 import Home from "./pages/Home.jsx";
 import ToolsList from "./pages/ToolsList.jsx";
 import ToolDetail from "./pages/ToolDetail.jsx";
+import MyRequests from "./pages/MyRequests.jsx";
 
 export default function App() {
   return (
@@ -12,6 +13,7 @@ export default function App() {
         <Route path="/" element={<Home />} />
         <Route path="/tools" element={<ToolsList />} />
         <Route path="/tools/:id" element={<ToolDetail />} />
+        <Route path="/requests" element={<MyRequests />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Layout>
