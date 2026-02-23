@@ -1,3 +1,5 @@
+# scarlet-hydrangea Community Tool Library - backend
+
 ## Prerequisites
 
 1. **Python 3.12**
@@ -10,9 +12,83 @@
    - Verify: `psql --version`
 4. **pgAdmin 4** (Optional GUI tool)
 
-For instructions on how to set up the backend server and the database, refer to the [Quick Start Guide](/backend/QUICK_START.md).
+## First time setup
+
+### Database
+
+1. Open PosgtreSQL command line (psql)
+
+    - Linux: `sudo -u postgres psql -d postgres`
+    - Windows:
+
+2. Create a new user:
+
+```bash
+CREATE USER <user_name> WITH PASSWORD '<db_password>';
+```
+
+3. Create the database:
+
+```bash
+CREATE DATABASE scarlet_hydrangea_db OWNER <user_name>;
+```
+
+>[!NOTE]
+> - Replace `<user_name>` and `<db_password>` with the credentials you want to use to access the database (notice the quotation marks around the password!).
+> - Special characters in passwords must be URL-encoded (e.g., `@` → `%40`)
+> - `JWT_SECRET_KEY` is generated at startup if not provided (dev only)
+
+4. (optional) confirm the database was created by checking the list of databases:
+
+```bash
+\l
+```
+
+You can escape the database list with `q`, and exit psql with `\q`.
+
+### Backend server
+
+1. Install dependencies:
+
+  ```bash
+  # from inside the the 'backend' directory:
+  uv sync
+  ```
+
+2. Configure the environment:
+
+  - in the `backend` directory, copy the `.env.example` file and rename the copy to `.env`
+  -  in the `.env` file, replace `postgres` `password`, with the username and password you used for creating the database.
+  
+3. Apply models to the database (creates required tables):
+
+  ```bash
+  # from inside the the 'backend' directory:
+  uv run flask db upgrade
+  ```
+
+4. Start the backend server:
+
+  ```bash
+  # from inside the the 'backend' directory:
+  uv run run.py
+  ```
+
+5. In your browser, open `http://127.0.0.1:5000/health`.  
+If you see the response:
+
+```bash
+{
+  "database": "connected",
+  "status": "healthy"`
+}
+```
+
+It means that the backend server is running, and it has access to the database.
 
 After starting the backend service, the API endpoints can be reached under the base URL address: `http://localhost:5000`.
+
+---
 
 ## API endpoints
 
@@ -226,97 +302,7 @@ The request response (with a status code `200`) will be the same as for the `/ap
 
 Takes an id of a `pending` borrow request. It increments the requested tool's availability, and sets the `returned_at` of the borrow request.
 
-The request response (with a status code `200`) will be the same as for the `/api/borrows`, except the `returned_at` field will include the date of the `return` `PATCH` request, and the `status` will be set to `returned`
-
-<!-- # TODO: Move the "Database Setup", and "Application Setup" sections to `/backend/QUICK_START.md`-->
-
-## Database Setup
-Before running the app, create the local database and user.
-
-1. **Open PostgreSQL command line (psql)**
-2. **Create a new user:**
-```sql
-   CREATE USER user_name WITH PASSWORD 'db_password';
-```
-3. **Create the database:**
-```sql
-   CREATE DATABASE db_name OWNER user_name;
-```
-   
-   *(Replace `user_name`, `db_password`, and `db_name` with your desired credentials)*
-
-## Application Setup
-1. **Install dependencies:** `uv sync`
-2. **Configure environment:**
-   - Copy `.env.example` to a new `.env` file in the `backend` directory
-   - Update `DATABASE_URL` in `.env` with your database credentials:
-
-## Running the Server
-1. **Start the server:** `uv run run.py`
-2. **Verify it's running:**
-   - Home page: `http://127.0.0.1:5000`
-   - Database connection test: `http://127.0.0.1:5000/test-db`
-# Scarlet Hydrangea Backend API
-
-A clean, scalable Flask + PostgreSQL backend skeleton built for team collaboration.
-
-## Quick Start
-
-### Prerequisites
-- Python 3.12+
-- PostgreSQL 16+
-- pip or uv (package manager)
-
-### Setup (First Time)
-
-1. **Clone and enter directory:**
-   ```bash
-   cd backend
-   ```
-
-2. **Create virtual environment:**
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
-
-3. **Install dependencies:**
-
-### Using pip (standard Python)
-```bash
-pip install -e .
-
-### Using  uv(faster dependency resolver)
-uv sync
-   ```
-
-4. **Configure environment:**
-   ```bash
-   cp .env.example .env
-   # Edit .env with your PostgreSQL credentials
-   ```
-
-5. **Initialize database migrations:**
-   ```bash
-   flask db init
-   ```
-
-6. **Initialize migrations:**
-   ```bash
-   flask db init
-   ```
-
-7. **Run the app:**
-### With pip
-   ```bash
-   python run.py
-
-### With uv
-   ```bash
-   uv run run.py
-   ```
-
-Visit `http://localhost:5000/health` to verify setup.
+The request response (with a status code `200`) will be the same as for the `/api/borrows`, except the `returned_at` field will include the date of the `return` `PATCH` request, and the `status` will be set to `returned`.
 
 ---
 
@@ -334,12 +320,12 @@ backend/
 │   ├── api/
 │   │   ├── __init__.py
 │   │   └── health.py            # Health check endpoint
-│   ├── crud/                    # [Week 2+: CRUD operations]
-│   ├── models/                  # [Week 2+: SQLAlchemy models]
-│   └── schemas/                 # [Week 2+: Serialization]
+│   ├── crud/                    # CRUD operations
+│   ├── models/                  # SQLAlchemy models
+│   └── schemas/                 # Data Serialization
 │
 ├── migrations/                  # Flask-Migrate (auto-generated)
-├── tests/                       # [Week 2+: Unit tests]
+├── tests/                       # Unit tests
 ├── .env                         # Environment variables (git-ignored)
 ├── .env.example                 # Template for .env
 ├── .gitignore
@@ -348,22 +334,20 @@ backend/
 └── README.md
 ```
 
-### Folder Responsibilities
+### Important Files
 
-| Folder | Purpose | Status |
-|--------|---------|--------|
-| `src/` | Core app setup | ✅ Done |
-| `app/api/` | Route blueprints | ✅ Health only |
-| `app/models/` | SQLAlchemy models | ⏳ Week 2 |
-| `app/crud/` | Database operations | ⏳ Week 2 |
-| `app/schemas/` | Data validation/serialization | ⏳ Week 2 |
-| `migrations/` | Database version control | ✅ Ready |
+| File | Purpose |
+|------|---------|
+| `src/__init__.py` | App factory |
+| `src/config.py` | Configuration classes |
+| `src/extensions.py` | DB, Migrate, JWT setup |
+| `app/api/health.py` | Example blueprint |
+| `.env` | Your credentials (git-ignored) |
+| `migrations/` | Database version control |
 
----
+### Architecture Decisions
 
-## Architecture Decisions
-
-### 1. **App Factory Pattern**
+#### 1. **App Factory Pattern**
 ```python
 # src/__init__.py
 def create_app(config=None):
@@ -371,7 +355,7 @@ def create_app(config=None):
 ```
 **Why?** Allows multiple app instances (testing, staging, prod) without globals.
 
-### 2. **Extensions Initialization**
+#### 2. **Extensions Initialization**
 ```python
 # src/extensions.py
 db = SQLAlchemy()
@@ -383,7 +367,7 @@ def init_extensions(app):
 ```
 **Why?** Prevents circular imports when models import `from src.extensions import db`.
 
-### 3. **Environment-Based Config**
+#### 3. **Environment-Based Config**
 ```python
 # src/config.py
 class DevelopmentConfig(Config):
@@ -392,14 +376,14 @@ class DevelopmentConfig(Config):
 ```
 **Why?** Single source of truth. Easy to switch environments without code changes.
 
-### 4. **Blueprint Organization**
+#### 4. **Blueprint Organization**
 ```python
 # app/api/health.py
 health_bp = Blueprint('health', __name__)
 ```
 **Why?** As we add borrowing, user, and book routes, we keep them separate and organized.
 
-### 5. **Migration Management**
+#### 5. **Migration Management**
 ```bash
 flask db init      # Create migrations folder (one-time)
 flask db migrate   # Auto-detect model changes
@@ -409,78 +393,74 @@ flask db upgrade   # Apply to database
 
 ---
 
-## Development Commands
+### Architecture Rules
 
-### Run the Application
-```bash
-python run.py
-```
-Starts Flask dev server at `http://localhost:5000`
+1. **Business logic in CRUD, not routes**
+   - Routes: Handle HTTP only
+   - CRUD: Handle database logic
+   - Models: Define data structure
 
-### Check Health
-```bash
-curl http://localhost:5000/health
-```
-Response:
-```json
-{
-  "status": "healthy",
-  "database": "connected"
-}
-```
+2. **Import extensions from `src.extensions`**
+   - `from src.extensions import db`
+   - Never create your own SQLAlchemy instance
+
+3. **Use blueprints for routes**
+   - Don't write routes in `src/__init__.py`
+   - Put them in `app/api/your_feature.py`
+
+4. **Config from environment**
+   - Credentials in `.env`
+   - Never hardcode secrets
+
+5. **Migrations for schema changes**
+   - Always run `flask db migrate` after model changes
+   - Commit migration files to Git
+
+---
+
+### Adding a New Feature
+
+1. **Create model** in `app/models/your_model.py`
+2. **Create CRUD** in `app/crud/your_crud.py`
+3. **Create routes** in `app/api/your_routes.py`
+4. **Register blueprint** in `src/__init__.py`
+5. **Create migration:** `flask db migrate -m "Add your feature"`
+6. **Apply migration:** `flask db upgrade`
 
 ### Database Migrations
 
 **Create a migration after adding models:**
+
 ```bash
 flask db migrate -m "Add User model"
 ```
 
 **Apply pending migrations:**
+
 ```bash
 flask db upgrade
 ```
 
 **View migration status:**
+
 ```bash
 flask db current
 flask db history
 ```
 
-### Run Tests (Week 2+)
+**Rollback to the previous migration state**
+
+```bash
+flask db downgrade
+```
+
+### Run Tests
 ```bash
 pytest
 ```
 
 ---
 
-## Environment Variables
-
-Required in `.env`:
-
-```env
-FLASK_ENV=development
-DATABASE_URL=postgresql://postgres:password@localhost:5432/scarlet_hydrangea_db
-JWT_SECRET_KEY=your-secret-key-change-in-production
-```
-
-**Notes:**
-- Special characters in passwords must be URL-encoded (e.g., `@` → `%40`)
-- `JWT_SECRET_KEY` is generated at startup if not provided (dev only)
-- Never commit `.env` to Git
-
----
-
-## Next Steps (Week 2)
-
-- [ ] Create `User` model in `app/models/`
-- [ ] Create `Book` and `Borrow` models
-- [ ] Add Flask-Migrate version control to Git
-- [ ] Build CRUD operations in `app/crud/`
-- [ ] Create API routes in `app/api/`
-- [ ] Add input validation with Pydantic/Marshmallow
-
----
 
 ## Troubleshooting
 
@@ -503,16 +483,3 @@ Run migrations: `flask db upgrade`
 ## Questions?
 
 This is a learning space! Ask in PRs, comments, or slack. We're building this together.
-
-**Remember:** Week 1 is infrastructure. Features come later. 🚀
-
-### Creating database tables (workaround)
-
-> I believe the correct way of initializing the db is to go through steps in the "Database Migrations", but I've been having issues with running those. Run the command below to create empty tables for the database. (it's not a "right" way to do this I'd imagine, but it does work)  
-> \- Sebastian
-
-```bash
-# cd to the 'backend folder and run:
-uv run create_tables.py
-#expected output: "Database tables created."
-```
