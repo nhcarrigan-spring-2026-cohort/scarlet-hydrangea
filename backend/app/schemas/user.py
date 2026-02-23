@@ -10,7 +10,7 @@ class UserSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = User
         load_instance = False  # returns a dict
-        fields = ("id", "username", "email", "full_name", "created_at")
+        fields = ("id", "username", "is_admin", "email", "full_name", "created_at")
         dump_only = fields
 
 class UserProfileSchema(ma.SQLAlchemyAutoSchema):
@@ -40,7 +40,7 @@ class UserProfileSchema(ma.SQLAlchemyAutoSchema):
 
 class UserRegistrationSchema(ma.Schema):
     """
-    Validates Registration Data (POST /auth/register)
+    Validates Registration Data (POST /api/users)
     """
     username = ma.String(required=True, validate=validate.Length(min=3, max=50))
     email = ma.Email(required=True)
@@ -48,11 +48,10 @@ class UserRegistrationSchema(ma.Schema):
     password = ma.String(required=True, load_only=True,
                          validate=validate.Length(min=8, error="Password must be at least 8 characters"))
 
-    # will add username & email validation logic here once required CRUD operations added
 
 class UserLoginSchema(ma.Schema):
     """
-    Validates POST /auth/login request body.
+    Validates POST api/auth/login request body.
     """
     email = ma.Email(required=True)
     password = ma.String(required=True, load_only=True)

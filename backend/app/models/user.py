@@ -13,6 +13,9 @@ class User(db.Model):
     full_name = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(255), unique=True, nullable=False, index=True)
     password_hash = db.Column(db.String(255), nullable=False)
+    
+    # For Admin
+    is_admin = db.Column(db.Boolean, nullable=False, default=False, server_default="false")
 
     created_at = db.Column(db.DateTime(timezone=True), server_default=db.func.now())
     updated_at = db.Column(db.DateTime(timezone=True), server_default=db.func.now(), onupdate=db.func.now())
