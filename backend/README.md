@@ -1,4 +1,13 @@
 ## Prerequisites
+- Python 3.12+
+- PostgreSQL 16+
+- pip or uv (package manager)
+### Setup (First Time)
+
+0. **Clone and enter directory:**
+   ```bash
+   cd backend
+   ```
 1. **Python 3.12**
 2. **Install `uv` package manager**
    - macOS/Linux: `curl -LsSf https://astral.sh/uv/install.sh | sh`
@@ -6,7 +15,9 @@
    - Verify: `uv --version`
 3. **Install PostgreSQL**
    - Download the installer for your OS from [PostgreSQL Downloads](https://www.postgresql.org/download/)
-   - Verify: `psql --version`
+   - Verify: `psql --version` (For windows user ensure you have Environment Variables set correctly so you that you can use psql in powershell.
+   To do this first check what version of PostgreSQL you have installed. This is done by checking what version number the folder in C:\Program Files\PostgreSQL is called (assuming you installed it to default location)
+   Then once you have the version head to Windows start and type Edit system environment variables, click the bottom right rectange labeled Environment Viriables, head to Path in the User variables for 'Username', click Edit, click New, them type 'C:\Program Files\PostgreSQL\18\bin' click New again and add 'C:\Program Files\PostgreSQL\18\lib' (Assuming you are running version 18, modify this number if you are running a different version. Press ok and now you can use psql in powershell)  )
 4. **pgAdmin 4** (Optional GUI tool)
 
 ## Database Setup
@@ -34,70 +45,12 @@ Before running the app, create the local database and user.
 1. **Start the server:** `uv run run.py`
 2. **Verify it's running:**
    - Home page: `http://127.0.0.1:5000`
-   - Database connection test: `http://127.0.0.1:5000/test-db`
+   - Database connection test: 
+Visit `http://localhost:5000/health` to verify setup.
 # Scarlet Hydrangea Backend API
 
 A clean, scalable Flask + PostgreSQL backend skeleton built for team collaboration.
 
-## Quick Start
-
-### Prerequisites
-- Python 3.12+
-- PostgreSQL 16+
-- pip or uv (package manager)
-
-### Setup (First Time)
-
-1. **Clone and enter directory:**
-   ```bash
-   cd backend
-   ```
-
-2. **Create virtual environment:**
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
-
-3. **Install dependencies:**
-
-### Using pip (standard Python)
-```bash
-pip install -e .
-
-### Using  uv(faster dependency resolver)
-uv sync
-   ```
-
-4. **Configure environment:**
-   ```bash
-   cp .env.example .env
-   # Edit .env with your PostgreSQL credentials
-   ```
-
-5. **Initialize database migrations:**
-   ```bash
-   flask db init
-   ```
-
-6. **Initialize migrations:**
-   ```bash
-   flask db init
-   ```
-
-7. **Run the app:**
-### With pip
-   ```bash
-   python run.py
-
-### With uv
-   ```bash
-   uv run run.py
-   ```
-
-Visit `http://localhost:5000/health` to verify setup.
-
----
 
 ## Project Structure
 
