@@ -23,68 +23,63 @@
 
 2. Create a new user:
 
-```bash
-CREATE USER <user_name> WITH PASSWORD '<db_password>';
-```
+    ```sql
+    CREATE USER <user_name> WITH PASSWORD '<db_password>';
+    ```
 
 3. Create the database:
 
-```bash
-CREATE DATABASE scarlet_hydrangea_db OWNER <user_name>;
-```
+    ```sql
+    CREATE DATABASE scarlet_hydrangea_db OWNER <user_name>;
+    ```
 
->[!NOTE]
-> - Replace `<user_name>` and `<db_password>` with the credentials you want to use to access the database (notice the quotation marks around the password!).
-> - Special characters in passwords must be URL-encoded (e.g., `@` → `%40`)
-> - `JWT_SECRET_KEY` is generated at startup if not provided (dev only)
+    >[!NOTE]
+    > - Replace `<user_name>` and `<db_password>` with the credentials you want to use to access the database (notice the quotation marks around the password!).
+    > - Special characters in passwords must be URL-encoded (e.g., `@` → `%40`)
+    > - `JWT_SECRET_KEY` is generated at startup if not provided (dev only)
 
-4. (optional) confirm the database was created by checking the list of databases:
-
-```bash
-\l
-```
+4. (optional) open the database list with `\l` and confirm that `scarlet_hydrangea_db` has been created, and its owner is the user you created.
 
 You can escape the database list with `q`, and exit psql with `\q`.
 
 ### Backend server
 
-1. Install dependencies:
+1. Enter the `backend` directory,
 
-  ```bash
-  # from inside the the 'backend' directory:
-  uv sync
-  ```
+2. Install dependencies:
 
-2. Configure the environment:
+    ```bash
+    uv sync
+    ```
 
-  - in the `backend` directory, copy the `.env.example` file and rename the copy to `.env`
-  -  in the `.env` file, replace `postgres` `password`, with the username and password you used for creating the database.
+3. Configure the environment:
+
+    1. copy the `.env.example` file and rename the copy to `.env`,
+    2. in the `.env` file, replace `postgres` `password`, with the username and password you used for creating the database.
   
-3. Apply models to the database (creates required tables):
+4. Apply models to the database (creates required tables):
 
-  ```bash
-  # from inside the the 'backend' directory:
-  uv run flask db upgrade
-  ```
+    ```bash
+    uv run flask db upgrade
+    ```
 
-4. Start the backend server:
+5. Start the backend server:
 
-  ```bash
-  # from inside the the 'backend' directory:
-  uv run run.py
-  ```
+    ```bash
+    uv run run.py
+    ```
 
-5. In your browser, open `http://127.0.0.1:5000/health`.  
+6. In your browser, open `http://127.0.0.1:5000/health`.  
 If you see the response:
 
-```bash
-{
-  "database": "connected",
-  "status": "healthy"`
-}
-```
+    ```bash
+    {
+      "database": "connected",
+      "status": "healthy"`
+    }
+    ```
 
-It means that the backend server is running, and it has access to the database.
+    It means that the backend server is running, and it has access to the database.
 
 After starting the backend service, the API endpoints can be reached under the base URL address: `http://localhost:5000`.
 
@@ -135,8 +130,9 @@ Expected object structure:
 ```
 
 >[!NOTE]
-> `email` and `username` **MUST BE UNIQUE** (not already in use by another registered user).  
-> \* A "valid email address consists of at least one alphanumeric character followed by `@`, at least one alphanumeric character followed by `.`, and at least two alphanumeric characters.
+>
+> - `email` and `username` **MUST BE UNIQUE** (not already in use by another registered user).  
+> - \* A "valid email address consists of at least one alphanumeric character followed by `@`, at least one alphanumeric character followed by `.`, and at least two alphanumeric characters.
 
 If valid (new) user data is provided, a new user will be added to the database, and the request response (with a status code `201`) will be:
 
@@ -262,7 +258,7 @@ Expected object structure:
 }
 ```
 
-If both the user and tool id's are valid, and the tool is available, the request response (with a status code `201`) will be: 
+If both the user and tool id's are valid, and the tool is available, the request response (with a status code `201`) will be:
 
 ```JSON
 {
@@ -288,6 +284,7 @@ If both the user and tool id's are valid, and the tool is available, the request
 ```
 
 > [!NOTE]
+>
 > - The `approved_at`, `borrowed_at`, and `due_date` fields will **not** have values until the borrow status gets changed to `approved` with an `approve` `PATCH` request.
 > - Until the borrow request is approved, the tool and can be requested by other users.
 > - The `returned_at` field fill not have a value until the borrow status gets changed to `returned` with a `return` `PATCH` request.
@@ -308,7 +305,7 @@ The request response (with a status code `200`) will be the same as for the `/ap
 
 ## Project Structure
 
-```
+```bash
 backend/
 ├── src/
 │   ├── __init__.py              # App factory (create_app)
@@ -337,7 +334,7 @@ backend/
 ### Important Files
 
 | File | Purpose |
-|------|---------|
+| ------ | --------- |
 | `src/__init__.py` | App factory |
 | `src/config.py` | Configuration classes |
 | `src/extensions.py` | DB, Migrate, JWT setup |
@@ -348,14 +345,17 @@ backend/
 ### Architecture Decisions
 
 #### 1. **App Factory Pattern**
+
 ```python
 # src/__init__.py
 def create_app(config=None):
     """Creates and configures Flask app"""
 ```
+
 **Why?** Allows multiple app instances (testing, staging, prod) without globals.
 
 #### 2. **Extensions Initialization**
+
 ```python
 # src/extensions.py
 db = SQLAlchemy()
@@ -365,30 +365,37 @@ jwt = JWTManager()
 def init_extensions(app):
     """Ties extensions to a specific app instance"""
 ```
+
 **Why?** Prevents circular imports when models import `from src.extensions import db`.
 
 #### 3. **Environment-Based Config**
+
 ```python
 # src/config.py
 class DevelopmentConfig(Config):
     DEBUG = True
     SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL')
 ```
+
 **Why?** Single source of truth. Easy to switch environments without code changes.
 
 #### 4. **Blueprint Organization**
+
 ```python
 # app/api/health.py
 health_bp = Blueprint('health', __name__)
 ```
+
 **Why?** As we add borrowing, user, and book routes, we keep them separate and organized.
 
 #### 5. **Migration Management**
+
 ```bash
 flask db init      # Create migrations folder (one-time)
 flask db migrate   # Auto-detect model changes
 flask db upgrade   # Apply to database
 ```
+
 **Why?** Team members don't need to manually write SQL. Version-controlled schema.
 
 ---
@@ -448,34 +455,38 @@ flask db current
 flask db history
 ```
 
-**Rollback to the previous migration state**
+**Rollback to the previous migration state:**
 
 ```bash
 flask db downgrade
 ```
 
 ### Run Tests
+
 ```bash
 pytest
 ```
 
 ---
 
-
 ## Troubleshooting
 
 ### `ModuleNotFoundError: flask_migrate`
+
 ```bash
 pip install flask-migrate flask-jwt-extended
 ```
 
 ### `RuntimeError: SQLALCHEMY_DATABASE_URI not set`
+
 Ensure `.env` file exists and `FLASK_ENV` is loaded before importing config.
 
 ### `FATAL: password authentication failed`
+
 Check `.env` credentials match your PostgreSQL password. Special chars need URL encoding.
 
 ### `psycopg2.ProgrammingError: relation does not exist`
+
 Run migrations: `flask db upgrade`
 
 ---
