@@ -1,4 +1,5 @@
 import { NavLink } from "react-router-dom";
+import UserSelector from "./UserSelector";
 
 const linkClass = ({ isActive }) => ["nav__link", isActive && "active"].filter(Boolean).join(" ");
 
@@ -23,6 +24,7 @@ export default function Navbar() {
             My Requests
           </NavLink>
         </nav>
+        <UserSelector />
       </div>
     </header>
   );
