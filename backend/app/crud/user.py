@@ -3,7 +3,7 @@ from app.models.user import User
 from werkzeug.security import generate_password_hash
 from sqlalchemy import select
 
-def create_user(username, full_name, email, password):
+def create_user(username, full_name, email, password, is_admin=False):
     """
     Creates a new user. 
     Hashes the password before saving to the database.
@@ -12,7 +12,8 @@ def create_user(username, full_name, email, password):
         username=username,
         full_name=full_name,
         email=email,
-        password_hash=generate_password_hash(password)
+        password_hash=generate_password_hash(password),
+        is_admin=is_admin
     )
     db.session.add(user)
     db.session.commit()
