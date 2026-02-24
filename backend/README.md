@@ -24,6 +24,8 @@
 Before running the app, create the local database and user.
 
 1. **Open PostgreSQL command line (psql)**
+   - Linux: `sudo -u postgres psql -d postgres`
+   - Windows: open `SQL Shell (psql)`, leave `Server`, `Database`, `Port` and `Username` fields blank to use default values and use the password you entered during the installation
 2. **Create a new user:**
 ```sql
    CREATE USER user_name WITH PASSWORD 'db_password';
