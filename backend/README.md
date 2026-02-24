@@ -106,7 +106,15 @@ Apply models to the database (creates required tables):
 uv run flask db upgrade
 ```
 
-**5. Start Server**
+**5. Seed the database with example data**
+
+Add users and tools to the database:
+
+```bash
+uv run seeds.py
+```
+
+**6. Start Server**
 
 1. Start the backend server:
 
