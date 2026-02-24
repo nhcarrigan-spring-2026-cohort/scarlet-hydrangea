@@ -1,297 +1,282 @@
-## Prerequisites
-1. **Python 3.12**
-2. **Install `uv` package manager**
-   - macOS/Linux: `curl -LsSf https://astral.sh/uv/install.sh | sh`
-   - Windows: `powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"`
-   - Verify: `uv --version`
-3. **Install PostgreSQL**
-   - Download the installer for your OS from [PostgreSQL Downloads](https://www.postgresql.org/download/)
-   - Verify: `psql --version`
-4. **pgAdmin 4** (Optional GUI tool)
+# Scarlet Hydrangea Backend
 
-## Database Setup
-Before running the app, create the local database and user.
-
-1. **Open PostgreSQL command line (psql)**
-2. **Create a new user:**
-```sql
-   CREATE USER user_name WITH PASSWORD 'db_password';
-```
-3. **Create the database:**
-```sql
-   CREATE DATABASE db_name OWNER user_name;
-```
-   
-   *(Replace `user_name`, `db_password`, and `db_name` with your desired credentials)*
-
-## Application Setup
-1. **Install dependencies:** `uv sync`
-2. **Configure environment:**
-   - Copy `.env.example` to a new `.env` file in the `backend` directory
-   - Update `DATABASE_URL` in `.env` with your database credentials:
-
-## Running the Server
-1. **Start the server:** `uv run run.py`
-2. **Verify it's running:**
-   - Home page: `http://127.0.0.1:5000`
-   - Database connection test: `http://127.0.0.1:5000/test-db`
-# Scarlet Hydrangea Backend API
-
-A clean, scalable Flask + PostgreSQL backend skeleton built for team collaboration.
+Community Tool Library API - Share and borrow tools within your community.
 
 ## Quick Start
 
 ### Prerequisites
-- Python 3.12+
-- PostgreSQL 16+
-- pip or uv (package manager)
+- **Python 3.12+**
+- **PostgreSQL 16+**
+- **uv** (package manager)
+- **pgAdmin 4** (Optional GUI tool)
 
-### Setup (First Time)
-
-1. **Clone and enter directory:**
-   ```bash
-   cd backend
-   ```
-
-2. **Create virtual environment:**
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
-
-3. **Install dependencies:**
-
-### Using pip (standard Python)
+**Install uv:**
 ```bash
-pip install -e .
+# macOS/Linux
+curl -LsSf https://astral.sh/uv/install.sh | sh
 
-### Using  uv(faster dependency resolver)
-uv sync
-   ```
+# Windows
+powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
 
-4. **Configure environment:**
-   ```bash
-   cp .env.example .env
-   # Edit .env with your PostgreSQL credentials
-   ```
+# Verify
+uv --version
+```
 
-5. **Initialize database migrations:**
-   ```bash
-   flask db init
-   ```
+**Install PostgreSQL**
+ - Download the installer for your OS from [PostgreSQL Downloads](https://www.postgresql.org/download/)
+- Verify: `psql --version`
 
-6. **Initialize migrations:**
-   ```bash
-   flask db init
-   ```
+> [!NOTE]
+> If you are using Windows, you need to configure your environment variables to use the `psql` command directly inside PowerShell or the Command Prompt.
+>
+> Navigate to your installation folder, which defaults to `C:\Program Files\PostgreSQL\`. Note the name of the folder inside (e.g., `18`), as this represents your version number.
+>
+> To configure your environment variables correctly:
+> 1. Open Windows Start and search for "Edit system environment variables"
+> 2. Click the bottom right rectangle labeled **Environment Variables**
+> 3. Navigate to **Path** in the **User variables for 'Username'** section
+> 4. Click **Edit**, then **New**
+> 5. Add: `C:\Program Files\PostgreSQL\18\bin`
+> 6. Click **New** again and add: `C:\Program Files\PostgreSQL\18\lib`
+>
+> *Note: Replace `18` with your specific PostgreSQL version number if different.*
+>
+> Click **OK** to save. You can now use `psql` in PowerShell.
+---
 
-7. **Run the app:**
-### With pip
-   ```bash
-   python run.py
+### Setup
 
-### With uv
-   ```bash
-   uv run run.py
-   ```
+**1. Create Database**
 
-Visit `http://localhost:5000/health` to verify setup.
+1. Open PostgreSQL command line (psql)
 
+    - Linux: `sudo -u postgres psql -d postgres`
+    - Windows: open `SQL Shell (psql)`, leave `Server`, `Database`, `Port` and `Username` fields blank to use default values and use the password you entered during the installation
+
+2. Create a new user:
+
+    ```sql
+    CREATE USER <user_name> WITH PASSWORD '<db_password>';
+    ```
+
+3. Create the database:
+
+    ```sql
+    CREATE DATABASE scarlet_hydrangea_db OWNER <user_name>;
+    ```
+
+    > [!NOTE]
+    > - Replace `<user_name>` and `<db_password>` with the credentials you want to use to access the database (notice the quotation marks around the password!).
+    > - Special characters in passwords must be URL-encoded (e.g., `@` → `%40`)
+    > - `JWT_SECRET_KEY` is generated at startup if not provided (dev only)
+
+4. (optional) open the database list with `\l` and confirm that `scarlet_hydrangea_db` has been created, and its owner is the user you created.
+
+You can escape the database list with `q`, and exit psql with `\q`.
+
+**2. Install Dependencies**
+
+1. Enter the `backend` directory:
+
+    ```bash
+    cd backend
+    ```
+
+2. Install dependencies:
+
+    ```bash
+    uv sync
+    ```
+
+**3. Configure Environment**
+
+1. Copy the `.env.example` file and rename the copy to `.env`:
+
+    ```bash
+    cp .env.example .env
+    ```
+
+2. In the `.env` file, replace `postgres` and `password` with the username and password you used for creating the database.
+
+**4. Run Migrations**
+
+Apply models to the database (creates required tables):
+
+```bash
+uv run flask db upgrade
+```
+
+**5. Start Server**
+
+1. Start the backend server:
+
+    ```bash
+    uv run run.py
+    ```
+
+2. In your browser, open `http://127.0.0.1:5000/health`.  
+If you see the response:
+
+    ```json
+    {
+      "database": "connected",
+      "status": "healthy"
+    }
+    ```
+
+    It means that the backend server is running, and it has access to the database.
+
+After starting the backend service, the API endpoints can be reached under the base URL address: `http://localhost:5000`.
+
+## API endpoints
+
+**For detailed descriptions, and request and response formats, refer to [API.md](/backend/docs/API.md).**
+
+### `/health` (method: `GET`)
+
+- Used to verify the connection between the backend service and the database.
+
+### `/api/users` (methods: `GET`, `POST`)
+
+- `GET` request returns an array of registered users (if any are present in the database), or an empty array if there are no registered users.
+- `POST` request accepts an object containing new user data and creates a new `user` entry in the database.
+
+### `/users/<user_id>` (method: `GET`)
+
+- Returns user's profile data (including list of owned and currently borrowed items) if the user with the given id was found in the database, or an error with a status code `404`.
+
+### `/api/tools` (methods: `GET`, `POST`)
+
+- `GET` request returns an array of all tools in the database (including the tool's availability and owner info), or an empty array if there are no registered tools.
+- `POST` request accepts an object containing new tool data, and creates a new tool entry in the database.
+
+### `/api/tools/<id>` (method: `GET`)
+
+- Returns tool data (including the tool's owner data) if a tool with the given id was found in the database, or an error with a status code `404`.
+
+### `/api/borrows` (methods: `GET`, `POST`)
+
+- `GET` request returns an array of all borrow requests in the database (pending, approved, and returned), or an empty array if there are no borrow requests.
+- `POST` request accepts an object containing the id of a user requesting to borrow a tool and the tool id; creates a new `borrow` entry in the database.
+
+### `/api/borrows?user_id=<id>` (method: `GET`)
+
+- Returns an array of all borrow requests, filtered by the borrower's id. The response structure is the same as the data returned by `/api/borrows`.
+
+### `/api/borrows/<id>/approve` (method: `PATCH`)
+
+- Takes an id of an open borrow request, decrements the requested tool's availability, and sets the `due_date` of the borrow request to one week after the request has been approved.
+
+### `/api/borrows/<id>/return` (method: `PATCH`)
+
+- Takes an id of an approved borrow request. It increments the requested tool's availability and sets the `returned_at` date of the borrow request.
 ---
 
 ## Project Structure
-
-```
+``` bash
 backend/
-├── src/
-│   ├── __init__.py              # App factory (create_app)
-│   ├── config.py                # Environment-based config (Dev/Test/Prod)
-│   ├── extensions.py            # Third-party extensions (db, migrate, jwt)
-│   └── [Week 2+: models/]
-│
+├── docs/
+│   ├── ARCHITECTURE.md
+│   ├── API.md
+├── README.md
 ├── app/
-│   ├── api/
-│   │   ├── __init__.py
-│   │   └── health.py            # Health check endpoint
-│   ├── crud/                    # [Week 2+: CRUD operations]
-│   ├── models/                  # [Week 2+: SQLAlchemy models]
-│   └── schemas/                 # [Week 2+: Serialization]
-│
-├── migrations/                  # Flask-Migrate (auto-generated)
-├── tests/                       # [Week 2+: Unit tests]
-├── .env                         # Environment variables (git-ignored)
-├── .env.example                 # Template for .env
-├── .gitignore
-├── pyproject.toml               # Dependencies & project metadata
-├── run.py                       # Entry point
-└── README.md
+│   ├── api/                    # API endpoints
+│   ├── crud/                   # CRUD operations
+│   ├── models/                 # SQLAlchemy models
+│   └── schemas/                # Data Serialization
+|
+├── migrations/                 # Flask-Migrate (auto-generated)
+├── pyproject.toml              # Dependencies & project metadata
+├── run.py                      # Entry point
+|
+├── src/
+│   ├── __init__.py             # App factory
+│   ├── config.py               # Environment-based config (Dev/Test/Prod)
+│   └── extensions.py           # Third-party extensions (db, ma, migrate, jwt)
+├── tests/                      # Unit tests
+├── .env                        # Your credentials 
+└── uv.lock
+```
+---
+
+## Architecture
+
+**Layer Separation:**
+```
+Routes (HTTP) -> Schemas (validation) -> CRUD (business logic) -> Models (DB)
 ```
 
-### Folder Responsibilities
+**Key Principles:**
+- Business logic in CRUD, not routes
+- Schemas handle base validation and serialization
+- Models define database structure only
+- Use blueprints for organizing routes
 
-| Folder | Purpose | Status |
-|--------|---------|--------|
-| `src/` | Core app setup | ✅ Done |
-| `app/api/` | Route blueprints | ✅ Health only |
-| `app/models/` | SQLAlchemy models | ⏳ Week 2 |
-| `app/crud/` | Database operations | ⏳ Week 2 |
-| `app/schemas/` | Data validation/serialization | ⏳ Week 2 |
-| `migrations/` | Database version control | ✅ Ready |
+**For detailed architecture documentation, refer to [ARCHITECTURE.md](/backend/docs/ARCHITECTURE.md).**
 
 ---
 
-## Architecture Decisions
+## Development
 
-### 1. **App Factory Pattern**
-```python
-# src/__init__.py
-def create_app(config=None):
-    """Creates and configures Flask app"""
-```
-**Why?** Allows multiple app instances (testing, staging, prod) without globals.
+### Adding a New Feature
 
-### 2. **Extensions Initialization**
-```python
-# src/extensions.py
-db = SQLAlchemy()
-migrate = Migrate()
-jwt = JWTManager()
-
-def init_extensions(app):
-    """Ties extensions to a specific app instance"""
-```
-**Why?** Prevents circular imports when models import `from src.extensions import db`.
-
-### 3. **Environment-Based Config**
-```python
-# src/config.py
-class DevelopmentConfig(Config):
-    DEBUG = True
-    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL')
-```
-**Why?** Single source of truth. Easy to switch environments without code changes.
-
-### 4. **Blueprint Organization**
-```python
-# app/api/health.py
-health_bp = Blueprint('health', __name__)
-```
-**Why?** As we add borrowing, user, and book routes, we keep them separate and organized.
-
-### 5. **Migration Management**
-```bash
-flask db init      # Create migrations folder (one-time)
-flask db migrate   # Auto-detect model changes
-flask db upgrade   # Apply to database
-```
-**Why?** Team members don't need to manually write SQL. Version-controlled schema.
-
----
-
-## Development Commands
-
-### Run the Application
-```bash
-python run.py
-```
-Starts Flask dev server at `http://localhost:5000`
-
-### Check Health
-```bash
-curl http://localhost:5000/health
-```
-Response:
-```json
-{
-  "status": "healthy",
-  "database": "connected"
-}
-```
+1. **Create model** in `app/models/your_model.py`
+2. **Create CRUD** in `app/crud/your_crud.py`
+3. **Create routes** in `app/api/your_routes.py`
+4. **Register blueprint** in `src/__init__.py`
+5. **Create migration:** `flask db migrate -m "Add your feature"`
+6. **Apply migration:** `flask db upgrade`
 
 ### Database Migrations
 
 **Create a migration after adding models:**
+
 ```bash
-flask db migrate -m "Add User model"
+uv run flask db migrate -m "Add User model"
 ```
 
 **Apply pending migrations:**
+
 ```bash
-flask db upgrade
+uv run flask db upgrade
 ```
 
 **View migration status:**
+
 ```bash
 flask db current
 flask db history
 ```
 
-### Run Tests (Week 2+)
+**Rollback to the previous migration state:**
+
 ```bash
-pytest
+uv run flask db downgrade
 ```
-
----
-
-## Environment Variables
-
-Required in `.env`:
-
-```env
-FLASK_ENV=development
-DATABASE_URL=postgresql://postgres:password@localhost:5432/scarlet_hydrangea_db
-JWT_SECRET_KEY=your-secret-key-change-in-production
-```
-
-**Notes:**
-- Special characters in passwords must be URL-encoded (e.g., `@` → `%40`)
-- `JWT_SECRET_KEY` is generated at startup if not provided (dev only)
-- Never commit `.env` to Git
-
----
-
-## Next Steps (Week 2)
-
-- [ ] Create `User` model in `app/models/`
-- [ ] Create `Book` and `Borrow` models
-- [ ] Add Flask-Migrate version control to Git
-- [ ] Build CRUD operations in `app/crud/`
-- [ ] Create API routes in `app/api/`
-- [ ] Add input validation with Pydantic/Marshmallow
-
 ---
 
 ## Troubleshooting
 
 ### `ModuleNotFoundError: flask_migrate`
+
 ```bash
-pip install flask-migrate flask-jwt-extended
+uv add flask-migrate flask-jwt-extended
 ```
 
 ### `RuntimeError: SQLALCHEMY_DATABASE_URI not set`
+
 Ensure `.env` file exists and `FLASK_ENV` is loaded before importing config.
 
 ### `FATAL: password authentication failed`
-Check `.env` credentials match your PostgreSQL password. Special chars need URL encoding.
+
+Check `.env` credentials match your PostgreSQL password. Special characters need URL encoding.
 
 ### `psycopg2.ProgrammingError: relation does not exist`
-Run migrations: `flask db upgrade`
+
+Run migrations: `flask db upgrade` or `uv run flask db upgrade`
 
 ---
 
 ## Questions?
 
-This is a learning space! Ask in PRs, comments, or slack. We're building this together.
-
-**Remember:** Week 1 is infrastructure. Features come later. 🚀
-
-### Creating database tables (workaround)
-
-> I believe the correct way of initializing the db is to go through steps in the "Database Migrations", but I've been having issues with running those. Run the command below to create empty tables for the database. (it's not a "right" way to do this I'd imagine, but it does work)  
-> \- Sebastian
-
-```bash
-# cd to the 'backend folder and run:
-uv run create_tables.py
-#expected output: "Database tables created."
-```
+This is a learning space! Ask in PRs, comments, or on Discord. We're building this together.
