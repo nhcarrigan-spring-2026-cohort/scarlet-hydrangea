@@ -1,7 +1,9 @@
 import mockTools from "../mock/tools.mock.js";
 
-const API_BASE_URL =
-  (import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:5000").replace(/\/$/, "");
+const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:5000").replace(
+  /\/$/,
+  ""
+);
 
 class ApiError extends Error {
   constructor(message, { status, data, path }) {
@@ -11,6 +13,22 @@ class ApiError extends Error {
     this.data = data;
     this.path = path;
   }
+}
+
+// Convert backend tool shape -> frontend-friendly tool shape
+function normalizeTool(tool) {
+  if (!tool || typeof tool !== "object") return tool;
+
+  const available =
+    typeof tool.available === "boolean"
+      ? tool.available
+      : typeof tool.is_available === "boolean"
+      ? tool.is_available
+      : typeof tool.available_quantity === "number"
+      ? tool.available_quantity > 0
+      : false;
+
+  return { ...tool, available };
 }
 
 async function apiRequest(path, { headers, ...options } = {}) {
@@ -30,8 +48,7 @@ async function apiRequest(path, { headers, ...options } = {}) {
   }
 
   if (!res.ok) {
-    const message =
-      (data && (data.error || data.message)) || `HTTP ${res.status} on ${path}`;
+    const message = (data && (data.error || data.message)) || `HTTP ${res.status} on ${path}`;
     throw new ApiError(message, { status: res.status, data, path });
   }
 
@@ -50,10 +67,10 @@ export async function getTools() {
       throw new Error("Unexpected response shape from /api/tools");
     }
 
-    return tools;
+    return tools.map(normalizeTool);
   } catch (err) {
     console.warn("getTools: using mockTools fallback", err);
-    return mockTools;
+    return mockTools.map(normalizeTool);
   }
 }
 
@@ -70,30 +87,20 @@ export async function getToolById(id) {
       throw new Error(`Tool ${idStr} not found or response shape changed`);
     }
 
-    return tool;
+    return normalizeTool(tool);
   } catch (err) {
     console.warn("getToolById: using mockTools fallback", err);
 
     const tool = mockTools.find((t) => String(t.id) === idStr);
     if (!tool) throw new Error(`Tool ${idStr} not found`);
-    return tool;
+    return normalizeTool(tool);
   }
 }
 
 // Borrowing
 export async function createBorrowRequest(payload) {
-  try {
-    return await apiRequest("/api/requests", {
-      method: "POST",
-      body: JSON.stringify(payload),
-    });
-  } catch (err) {
-    console.warn("createBorrowRequest: mock success fallback", err);
-    return { ok: true, mocked: true };
-  }
+  return await apiRequest("/api/borrows/", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
 }
-
-
-
-
-
