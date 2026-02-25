@@ -158,6 +158,10 @@ After starting the backend service, the API endpoints can be reached under the b
 - `GET` request returns an array of all tools in the database (including the tool's availability and owner info), or an empty array if there are no registered tools.
 - `POST` request accepts an object containing new tool data, and creates a new tool entry in the database.
 
+### `/api/auth/login` (meth0d: `POST`)
+
+- `POST` request accepts a JSON object containing registered email and password for authentication.
+
 ### `/api/tools/<id>` (method: `GET`)
 
 - Returns tool data (including the tool's owner data) if a tool with the given id was found in the database, or an error with a status code `404`.

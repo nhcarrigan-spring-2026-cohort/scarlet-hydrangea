@@ -33,12 +33,11 @@ def create_app(config=None):
         return {'message': 'Scarlet Hydrangea Backend API'}, 200
     
     # Register blueprints
-    from app.api import health_bp, borrows_bp
-    from app.api import users_bp
-    from app.api import items_bp
+    from app.api import health_bp, borrows_bp, users_bp, items_bp, auth_bp
     app.register_blueprint(health_bp)
     app.register_blueprint(users_bp, url_prefix='/api')
     app.register_blueprint(items_bp, url_prefix='/api')
     app.register_blueprint(borrows_bp)
+    app.register_blueprint(auth_bp, url_prefix='/api')
     
     return app
