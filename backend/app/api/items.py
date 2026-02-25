@@ -4,6 +4,7 @@ from sqlalchemy.exc import IntegrityError
 from src.extensions import db
 from app.crud import get_all_items, add_item, get_item_by_id
 from app.schemas import ItemSchema
+from flask_jwt_extended import jwt_required, get_jwt_identity
 
 items_bp = Blueprint('items', __name__)
 
@@ -17,6 +18,7 @@ def get_items_endpoint():
     return jsonify(schema.dump(items)), 200
 
 @items_bp.route('/tools', methods=['POST'])
+@jwt_required()
 def add_item_endpoint():
     raw_data = request.get_json()
     
@@ -30,12 +32,12 @@ def add_item_endpoint():
         return jsonify({'error': err.messages}), 400
     
     try:
-        item = add_item(**data)     # Unpacking data dictionary to function kwargs
+        item = add_item(**data, owner_id=int(get_jwt_identity()))     # Unpacking data dictionary to function kwargs
     except IntegrityError:
         db.session.rollback()
-        return jsonify({'error': 'Invalid owner_id - user does not exist'}), 400      # Bad Request - user id not found
+        return jsonify({'error': 'Invalid owner_id - user does not exist'}), 401    # Unauthorized
     
-    return jsonify(ItemSchema().dump(item)), 201
+    return jsonify(schema.dump(item)), 201
 
 @items_bp.route('/tools/<int:item_id>', methods=['GET'])
 def get_item_endpoint(item_id):

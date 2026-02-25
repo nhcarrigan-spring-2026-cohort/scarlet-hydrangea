@@ -25,8 +25,7 @@ class ItemSchema(ma.SQLAlchemyAutoSchema):
     total_quantity = ma.Integer(required=True, strict=True, 
                                 validate=validate.Range(min=1, error="Total quantity must be at least 1"))
     
-    # Input only
-    owner_id = ma.Integer(required=True, load_only=True)
+    owner_id = ma.Integer(dump_only=True)
 
     # System controlled
     available_quantity = ma.Integer(dump_only=True, validate=validate.Range(min=0))

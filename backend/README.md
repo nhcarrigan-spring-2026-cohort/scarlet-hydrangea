@@ -156,9 +156,9 @@ After starting the backend service, the API endpoints can be reached under the b
 ### `/api/tools` (methods: `GET`, `POST`)
 
 - `GET` request returns an array of all tools in the database (including the tool's availability and owner info), or an empty array if there are no registered tools.
-- `POST` request accepts an object containing new tool data, and creates a new tool entry in the database.
+- `POST` request accepts an object containing new tool data, and creates a new tool entry in the database. **Requires a valid JWT Bearer token.**
 
-### `/api/auth/login` (meth0d: `POST`)
+### `/api/auth/login` (method: `POST`)
 
 - `POST` request accepts a JSON object containing registered email and password for authentication.
 
@@ -169,7 +169,7 @@ After starting the backend service, the API endpoints can be reached under the b
 ### `/api/borrows` (methods: `GET`, `POST`)
 
 - `GET` request returns an array of all borrow requests in the database (pending, approved, and returned), or an empty array if there are no borrow requests.
-- `POST` request accepts an object containing the id of a user requesting to borrow a tool and the tool id; creates a new `borrow` entry in the database.
+- `POST` request accepts an object containing the tool id; the borrower's identity is securely extracted from the provided authentication token. Creates a new `borrow` entry in the database. **Requires a valid JWT Bearer token.**
 
 ### `/api/borrows?user_id=<id>` (method: `GET`)
 
