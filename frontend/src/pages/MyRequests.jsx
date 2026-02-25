@@ -1,5 +1,7 @@
 import mockData from "../mock/tools.mock";
 import { Link } from "react-router-dom";
+import { getBorrows } from "../lib/api";
+import { useState, useEffect } from "react";
 
 export default function MyRequests() {
   return (
