@@ -116,6 +116,28 @@ Successful response (Response Code: 200) returns data formatted like this:
 ```
 ---
 
+### `POST /api/auth/login`
+
+Authenticates a user and returns an access token for subsequent API requests
+
+Expected JSON Request body:
+
+```json
+{
+  "email": String,
+  "password": String
+}
+```
+
+Successful response (Response Code: 201) returns data formatted like this:
+
+```json
+{
+  "access_token": String
+}
+```
+---
+
 ## Tools API
 
 ### `GET /api/tools`
