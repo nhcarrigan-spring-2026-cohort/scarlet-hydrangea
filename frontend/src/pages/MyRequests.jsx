@@ -1,5 +1,6 @@
 import mockData from "../mock/tools.mock";
 import { Link } from "react-router-dom";
+import StatusBadge from "../components/StatusBadge.jsx";
 
 export default function MyRequests() {
   return (
@@ -15,7 +16,10 @@ export default function MyRequests() {
         }}
       >
         {mockData.length >= 1
-          ? mockData.map((data) => (
+          ? mockData.map((data) => {
+    const requestStatus = data.available ? "approved" : "pending";
+
+    return (
               <div
                 key={data.id}
                 style={{
@@ -37,12 +41,9 @@ export default function MyRequests() {
                     marginTop: 12,
                   }}
                 >
-                  <span className="muted">
-                    Status:{" "}
-                    {data.available === true
-                      ? "Approved ✅"
-                      : "Pending ⏳"}
+                  <span className="muted">Status
                   </span>
+                  <StatusBadge status={requestStatus} />
 
                   <Link
                     to={`/tools/${data.id}`}
@@ -60,7 +61,8 @@ export default function MyRequests() {
                   </Link>
                 </div>
               </div>
-            ))
+            );
+          })
           : "No requests found."}
       </div>
     </div>

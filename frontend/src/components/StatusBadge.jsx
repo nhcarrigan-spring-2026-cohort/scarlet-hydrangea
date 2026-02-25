@@ -2,6 +2,12 @@ const STATUS_META = {
   available: { label: "Available", tone: "ok" },
   checked_out: { label: "Checked out", tone: "warn" },
   unknown: { label: "Status unknown", tone: "muted" },
+
+  pending: {label: "Pending", tone: "warn" },
+  approved: {label: "Approved", tone: "ok"},
+  returned: {label: "Returned", tone: "info"},
+
+  unkown: {label: "Unknown", tone: "muted"},
 };
 
 export default function StatusBadge(props) {
@@ -17,7 +23,8 @@ export default function StatusBadge(props) {
     onClick,
   } = props;
 
-  let normalizedStatus = status;
+  let normalizedStatus =
+  typeof status === "string" ? status.trim().toLowerCase() : status;
 
   if (!normalizedStatus) {
     if (available === true) normalizedStatus = "available";

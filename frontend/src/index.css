@@ -245,6 +245,10 @@ h3 {
   color: rgba(255, 255, 255, 0.72);
 }
 
+.statusBadge--info {
+  background: rgba(59, 130, 246, 0.18);
+  border-color: rgba(59, 130, 246, 0.35);
+}
 /* if it renders as a button */
 .statusBadge[type="button"] {
   cursor: pointer;

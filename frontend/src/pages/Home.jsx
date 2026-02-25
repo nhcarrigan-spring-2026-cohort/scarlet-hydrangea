@@ -36,7 +36,7 @@ export default function Home() {
         <div className="card">
           <h3>Request</h3>
           <p className="muted" style={{ margin: 0 }}>
-            Request to borrow (Week 2)
+            Request to borrow 
           </p>
         </div>
 
