@@ -19,7 +19,7 @@ class BorrowSchema(ma.SQLAlchemyAutoSchema):
 
     # Input Fields
     item_id = ma.Integer(required=True, load_only=True)
-    borrower_id = ma.Integer(required=True, load_only=True)
+    borrower_id = ma.Integer(dump_only=True)
 
     # System controlled
     status = ma.String(dump_only=True)
