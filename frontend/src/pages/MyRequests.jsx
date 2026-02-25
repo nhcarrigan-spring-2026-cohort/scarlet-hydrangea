@@ -24,6 +24,9 @@ export default function MyRequests() {
     loadData();
   }, [userId]);
 
+  if (loading) return <div className="container"><h1>Loading...</h1></div>;
+  if (error) return <div className="container"><h1>Error: {error}</h1></div>;
+
   return (
     <div className="container">
       <h1>My Requests</h1>
