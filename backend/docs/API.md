@@ -172,6 +172,8 @@ Successful response (Response Code: 200) returns data formatted like this:
 
 Creates a new tool entry in the database.
 
+**Headers Required:** `Authorization: Bearer <access_token>`
+
 Expected JSON request body:
 
 ```json
@@ -207,6 +209,7 @@ Successful response (Response Code: 201) returns data formatted like this:
     "total_quantity": Integer
 },
 ```
+Error response (Response Code: 401): Returned if the request lacks a valid Bearer token.
 ---
 
 ### `GET /api/tools/<id>` 
@@ -272,11 +275,12 @@ Successful response (Response Code: 200) returns data formatted like this:
 
 Creates a new `borrow` entry in the database.
 
+Headers Required: Authorization: Bearer <access_token>
+
 Expected JSON request body:
 
 ```json
 {
-  "borrower_id": integer,
   "item_id": integer
 }
 ```
@@ -305,10 +309,11 @@ Successful response (Response Code: 201) returns data formatted like this:
   "status": "pending"
 }
 ```
+Error response (Response Code: 401): Returned if the request lacks a valid Bearer token.
 
 > [!NOTE]
 >
-> - Both `item_id` and `borrower_id` must reference existing records.
+> - Both `item_id` must reference an existing record.
 > - Tool must have `available_quantity > 0`
 > - The `approved_at`, `borrowed_at`, and `due_date` fields will be `null` until the borrow is `approved` via `PATCH /api/borrows/<id>/approve`
 > - Until the borrow request is approved, the tool and can be requested by other users.
