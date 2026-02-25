@@ -180,7 +180,6 @@ Expected JSON request body:
 {
   "condition": String, // valid values: "new", "like_new", "good", "fair", "poor"
   "name": String, // between 3 and 100 characters
-  "owner_id": Integer, // valid user id
   "total_quantity": Integer ,// minimum :1
   "category": String, // not required
   "description": String, // not required
