@@ -1,11 +1,14 @@
 from flask import Blueprint, request, jsonify
+from werkzeug.security import check_password_hash
+from flask_jwt_extended import create_access_token
 from marshmallow import ValidationError
 from sqlalchemy.exc import IntegrityError
 from src.extensions import db
-from app.crud.user import get_all_users, get_user, create_user
-from app.schemas import UserSchema, UserProfileSchema, UserRegistrationSchema
+from app.crud.user import get_all_users, get_user, create_user, get_user_by_email
+from app.schemas import UserSchema, UserProfileSchema, UserRegistrationSchema, UserLoginSchema
 
 users_bp = Blueprint('users', __name__)
+auth_bp = Blueprint('auth', __name__)
 
 '''
 /api/users route
@@ -44,4 +47,26 @@ def create_user_endpoint():
         db.session.rollback()
         return jsonify({'error': 'Username or email already exists'}), 409      # Conflict
     
-    return jsonify(UserSchema().dump(user)), 201        # Created       
+    return jsonify(UserSchema().dump(user)), 201        # Created     
+
+
+@auth_bp.route('/auth/login', methods=['POST'])  
+def login_user_endpoint():
+    raw_data = request.get_json()
+    
+    if not raw_data:
+        return jsonify({'error': 'Request body is required'}), 400
+    
+    schema = UserLoginSchema()
+    try:
+        data = schema.load(raw_data)
+    except ValidationError as err:
+        return jsonify({'error': err.messages}), 400
+    
+    user = get_user_by_email(data['email'])
+    if not user or not check_password_hash(user.password_hash, data['password']):
+        return jsonify({'error': 'Invalid email or password'}), 401
+    
+    # generate token
+    token = create_access_token(identity=user.id)
+    return jsonify({'access_token': token}), 200
