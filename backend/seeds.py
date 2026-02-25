@@ -100,4 +100,12 @@ with app.app_context():
     borrow_crud.return_borrow(returned.id)
     print(f"Created returned borrow: id={returned.id}")
 
+    # Extra borrow for frontend testing: user[1] borrows from user[0]
+    test_borrow = borrow_crud.create_borrow_request(
+        item_id=items[0].id,
+        borrower_id=users[1].id,
+        due_date=None
+    )
+    print(f"Created extra borrow for dev testing: id={test_borrow.id}")
+
     print("\nSeeding complete.")
