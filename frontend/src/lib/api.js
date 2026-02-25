@@ -99,7 +99,7 @@ export async function getBorrows(id) {
     return [];
   }
   try {
-    return await apiRequest(`/api/borrows?user_id=${id}`);
+    return await apiRequest("/api/borrows/?user_id=" + id);
   } catch (err) {
     console.warn(err);
     throw err;
