@@ -2,6 +2,7 @@ from flask import Blueprint, request, jsonify
 from marshmallow import ValidationError
 from app.crud import borrow as borrow_crud
 from app.schemas.borrow import BorrowSchema
+from flask_jwt_extended import jwt_required, get_jwt_identity
 
 borrows_bp = Blueprint('borrows', __name__, url_prefix='/api/borrows')
 
@@ -34,6 +35,7 @@ def get_borrow_endpoint(borrow_id):
 
 
 @borrows_bp.route('/', methods=['POST'])
+@jwt_required()
 def create_borrow_endpoint():
     """Create a new borrow request"""
     raw_data = request.get_json()
@@ -50,7 +52,7 @@ def create_borrow_endpoint():
     try:
         borrow = borrow_crud.create_borrow_request(
             item_id=data['item_id'],
-            borrower_id=data['borrower_id'],
+            borrower_id=int(get_jwt_identity()),
             due_date=None
         )
     except ValueError as e:
