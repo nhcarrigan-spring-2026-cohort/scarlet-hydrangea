@@ -162,6 +162,10 @@ After starting the backend service, the API endpoints can be reached under the b
 
 - `POST` request accepts a JSON object containing registered email and password for authentication.
 
+### `/api/auth/logout` (method: `POST`)
+
+- `POST` request accepts _any_ request body, revokes the current JWT Bearer token. **Requires a valid JWT Bearer token.**
+
 ### `/api/tools/<id>` (method: `GET`)
 
 - Returns tool data (including the tool's owner data) if a tool with the given id was found in the database, or an error with a status code `404`.

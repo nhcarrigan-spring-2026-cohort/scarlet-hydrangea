@@ -136,6 +136,19 @@ Successful response (Response Code: 201) returns data formatted like this:
   "access_token": String
 }
 ```
+
+### `POST /api/auth/logout`
+
+Revokes currently used access token.
+
+Successful response (Response Code: 200) returns data formatted like this:
+
+```json
+{
+  "message": "User successfully logged off"
+}
+```
+
 ---
 
 ## Tools API
