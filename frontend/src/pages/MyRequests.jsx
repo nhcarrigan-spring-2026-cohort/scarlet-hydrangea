@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { getBorrows } from "../lib/api";
 import { useState, useEffect } from "react";
+import StatusBadge from "../components/StatusBadge.jsx";
 
 export default function MyRequests() {
   const [requests, setRequests] = useState([]);
@@ -24,8 +25,19 @@ export default function MyRequests() {
     loadData();
   }, [userId]);
 
-  if (loading) return <div className="container"><h1>Loading...</h1></div>;
-  if (error) return <div className="container"><h1>Error: {error}</h1></div>;
+  if (loading)
+    return (
+      <div className="container">
+        <h1>Loading...</h1>
+      </div>
+    );
+
+  if (error)
+    return (
+      <div className="container">
+        <h1>Error: {error}</h1>
+      </div>
+    );
 
   return (
     <div className="container">
@@ -40,52 +52,54 @@ export default function MyRequests() {
         }}
       >
         {requests.length >= 1
-          ? requests.map((data) => (
-              <div
-                key={data.id}
-                style={{
-                  border: "1px solid #ddd",
-                  borderRadius: 8,
-                  padding: 16,
-                  display: "flex",
-                  flexDirection: "column",
-                  justifyContent: "space-between",
-                }}
-              >
-              <h3 style={{ margin: 0 }}>{data.item.name}</h3>
+          ? requests.map((data) => {
+              const requestStatus = (data.status || "unknown").toLowerCase();
 
+              return (
                 <div
+                  key={data.id}
                   style={{
+                    border: "1px solid #ddd",
+                    borderRadius: 8,
+                    padding: 16,
                     display: "flex",
                     flexDirection: "column",
-                    gap: 8,
-                    marginTop: 12,
+                    justifyContent: "space-between",
                   }}
                 >
-                  <span className="muted">
-                    Status:{" "}
-                    {data.status === "approved"
-                      ? "Approved ✅"
-                      : "Pending ⏳"}
-                  </span>
+                  <h3 style={{ margin: 0 }}>{data.item?.name ?? "Unnamed Tool"}</h3>
 
-                  <Link
-                    to={`/tools/${data.item.id}`}
+                  <div
                     style={{
-                      width: "fit-content",
-                      padding: "6px 12px",
-                      backgroundColor: "#007bff",
-                      color: "white",
-                      borderRadius: 4,
-                      textDecoration: "none",
-                      marginTop:"10px "
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: 8,
+                      marginTop: 12,
                     }}
                   >
-                    View Tool
-                  </Link>
+                    <span className="muted">Status:</span>
+
+                    {/* Badge should hug its content; fix that in StatusBadge styles */}
+                    <StatusBadge status={requestStatus} />
+
+                    <Link
+                      to={`/tools/${data.item?.id}`}
+                      style={{
+                        width: "fit-content",
+                        padding: "6px 12px",
+                        backgroundColor: "#007bff",
+                        color: "white",
+                        borderRadius: 4,
+                        textDecoration: "none",
+                        marginTop: "10px",
+                      }}
+                    >
+                      View Tool
+                    </Link>
+                  </div>
                 </div>
-              </div>
-            ))
+              );
+            })
           : "No requests found."}
       </div>
     </div>
