@@ -51,56 +51,82 @@ export default function MyRequests() {
           gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
         }}
       >
-        {requests.length >= 1
-          ? requests.map((data) => {
-              const requestStatus = (data.status || "unknown").toLowerCase();
+        {requests.length === 0 ? (
+          <div
+            style={{
+              textAlign: "center",
+              gridColumn: "1 / -1",
+              padding: "40px 0",
+            }}
+          >
+            <h3>You haven’t requested any tools yet.</h3>
 
-              return (
+            <Link
+              to="/tools"
+              style={{
+                display: "inline-block",
+                marginTop: "12px",
+                padding: "8px 16px",
+                backgroundColor: "#007bff",
+                color: "white",
+                borderRadius: 4,
+                textDecoration: "none",
+              }}
+            >
+              Browse tools
+            </Link>
+          </div>
+        ) : (
+          requests.map((data) => {
+            const requestStatus = (data.status || "unknown").toLowerCase();
+
+            return (
+              <div
+                key={data.id}
+                style={{
+                  border: "1px solid #ddd",
+                  borderRadius: 8,
+                  padding: 16,
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "space-between",
+                }}
+              >
+                <h3 style={{ margin: 0 }}>
+                  {data.item?.name ?? "Unnamed Tool"}
+                </h3>
+
                 <div
-                  key={data.id}
                   style={{
-                    border: "1px solid #ddd",
-                    borderRadius: 8,
-                    padding: 16,
                     display: "flex",
                     flexDirection: "column",
-                    justifyContent: "space-between",
+                    gap: 8,
+                    marginTop: 12,
                   }}
                 >
-                  <h3 style={{ margin: 0 }}>{data.item?.name ?? "Unnamed Tool"}</h3>
+                  <span className="muted">Status:</span>
 
-                  <div
+                  <StatusBadge status={requestStatus} />
+
+                  <Link
+                    to={`/tools/${data.item?.id}`}
                     style={{
-                      display: "flex",
-                      flexDirection: "column",
-                      gap: 8,
-                      marginTop: 12,
+                      width: "fit-content",
+                      padding: "6px 12px",
+                      backgroundColor: "#007bff",
+                      color: "white",
+                      borderRadius: 4,
+                      textDecoration: "none",
+                      marginTop: "10px",
                     }}
                   >
-                    <span className="muted">Status:</span>
-
-                    {/* Badge should hug its content; fix that in StatusBadge styles */}
-                    <StatusBadge status={requestStatus} />
-
-                    <Link
-                      to={`/tools/${data.item?.id}`}
-                      style={{
-                        width: "fit-content",
-                        padding: "6px 12px",
-                        backgroundColor: "#007bff",
-                        color: "white",
-                        borderRadius: 4,
-                        textDecoration: "none",
-                        marginTop: "10px",
-                      }}
-                    >
-                      View Tool
-                    </Link>
-                  </div>
+                    View Tool
+                  </Link>
                 </div>
-              );
-            })
-          : "No requests found."}
+              </div>
+            );
+          })
+        )}
       </div>
     </div>
   );
