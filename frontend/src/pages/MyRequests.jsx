@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { getBorrows } from "../lib/api";
 import { useState, useEffect } from "react";
 import StatusBadge from "../components/StatusBadge.jsx";
+import Loading from "../components/Loading.jsx";
 
 export default function MyRequests() {
   const [requests, setRequests] = useState([]);
@@ -27,9 +28,7 @@ export default function MyRequests() {
 
   if (loading)
     return (
-      <div className="container">
-        <h1>Loading...</h1>
-      </div>
+      <Loading />
     );
 
   if (error)
