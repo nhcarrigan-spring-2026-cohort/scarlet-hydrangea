@@ -1,8 +1,44 @@
-import mockData from "../mock/tools.mock";
 import { Link } from "react-router-dom";
+import { getBorrows } from "../lib/api";
+import { useState, useEffect } from "react";
 import StatusBadge from "../components/StatusBadge.jsx";
 
 export default function MyRequests() {
+  const [requests, setRequests] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const userId = localStorage.getItem("borrower_id");
+
+  useEffect(() => {
+    async function loadData() {
+      setLoading(true);
+      setError(null);
+      try {
+        const data = await getBorrows(userId);
+        setRequests(data);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadData();
+  }, [userId]);
+
+  if (loading)
+    return (
+      <div className="container">
+        <h1>Loading...</h1>
+      </div>
+    );
+
+  if (error)
+    return (
+      <div className="container">
+        <h1>Error: {error}</h1>
+      </div>
+    );
+
   return (
     <div className="container">
       <h1>My Requests</h1>
@@ -15,54 +51,55 @@ export default function MyRequests() {
           gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
         }}
       >
-        {mockData.length >= 1
-          ? mockData.map((data) => {
-    const requestStatus = data.available ? "approved" : "pending";
+        {requests.length >= 1
+          ? requests.map((data) => {
+              const requestStatus = (data.status || "unknown").toLowerCase();
 
-    return (
-              <div
-                key={data.id}
-                style={{
-                  border: "1px solid #ddd",
-                  borderRadius: 8,
-                  padding: 16,
-                  display: "flex",
-                  flexDirection: "column",
-                  justifyContent: "space-between",
-                }}
-              >
-                <h3 style={{ margin: 0 }}>{data.name}</h3>
-
+              return (
                 <div
+                  key={data.id}
                   style={{
+                    border: "1px solid #ddd",
+                    borderRadius: 8,
+                    padding: 16,
                     display: "flex",
                     flexDirection: "column",
-                    gap: 8,
-                    marginTop: 12,
+                    justifyContent: "space-between",
                   }}
                 >
-                  <span className="muted">Status
-                  </span>
-                  <StatusBadge status={requestStatus} />
+                  <h3 style={{ margin: 0 }}>{data.item?.name ?? "Unnamed Tool"}</h3>
 
-                  <Link
-                    to={`/tools/${data.id}`}
+                  <div
                     style={{
-                      width: "fit-content",
-                      padding: "6px 12px",
-                      backgroundColor: "#007bff",
-                      color: "white",
-                      borderRadius: 4,
-                      textDecoration: "none",
-                      marginTop:"10px "
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: 8,
+                      marginTop: 12,
                     }}
                   >
-                    View Tool
-                  </Link>
+                    <span className="muted">Status:</span>
+
+                    {/* Badge should hug its content; fix that in StatusBadge styles */}
+                    <StatusBadge status={requestStatus} />
+
+                    <Link
+                      to={`/tools/${data.item?.id}`}
+                      style={{
+                        width: "fit-content",
+                        padding: "6px 12px",
+                        backgroundColor: "#007bff",
+                        color: "white",
+                        borderRadius: 4,
+                        textDecoration: "none",
+                        marginTop: "10px",
+                      }}
+                    >
+                      View Tool
+                    </Link>
+                  </div>
                 </div>
-              </div>
-            );
-          })
+              );
+            })
           : "No requests found."}
       </div>
     </div>

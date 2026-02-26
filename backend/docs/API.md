@@ -116,6 +116,28 @@ Successful response (Response Code: 200) returns data formatted like this:
 ```
 ---
 
+### `POST /api/auth/login`
+
+Authenticates a user and returns an access token for subsequent API requests
+
+Expected JSON Request body:
+
+```json
+{
+  "email": String,
+  "password": String
+}
+```
+
+Successful response (Response Code: 201) returns data formatted like this:
+
+```json
+{
+  "access_token": String
+}
+```
+---
+
 ## Tools API
 
 ### `GET /api/tools`
@@ -150,13 +172,14 @@ Successful response (Response Code: 200) returns data formatted like this:
 
 Creates a new tool entry in the database.
 
+**Headers Required:** `Authorization: Bearer <access_token>`
+
 Expected JSON request body:
 
 ```json
 {
   "condition": String, // valid values: "new", "like_new", "good", "fair", "poor"
   "name": String, // between 3 and 100 characters
-  "owner_id": Integer, // valid user id
   "total_quantity": Integer ,// minimum :1
   "category": String, // not required
   "description": String, // not required
@@ -185,6 +208,7 @@ Successful response (Response Code: 201) returns data formatted like this:
     "total_quantity": Integer
 },
 ```
+Error response (Response Code: 401): Returned if the request lacks a valid Bearer token.
 ---
 
 ### `GET /api/tools/<id>` 
@@ -250,11 +274,12 @@ Successful response (Response Code: 200) returns data formatted like this:
 
 Creates a new `borrow` entry in the database.
 
+Headers Required: Authorization: Bearer <access_token>
+
 Expected JSON request body:
 
 ```json
 {
-  "borrower_id": integer,
   "item_id": integer
 }
 ```
@@ -283,10 +308,11 @@ Successful response (Response Code: 201) returns data formatted like this:
   "status": "pending"
 }
 ```
+Error response (Response Code: 401): Returned if the request lacks a valid Bearer token.
 
 > [!NOTE]
 >
-> - Both `item_id` and `borrower_id` must reference existing records.
+> - Both `item_id` must reference an existing record.
 > - Tool must have `available_quantity > 0`
 > - The `approved_at`, `borrowed_at`, and `due_date` fields will be `null` until the borrow is `approved` via `PATCH /api/borrows/<id>/approve`
 > - Until the borrow request is approved, the tool and can be requested by other users.
