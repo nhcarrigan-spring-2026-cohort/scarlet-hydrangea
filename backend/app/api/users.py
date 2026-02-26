@@ -1,14 +1,23 @@
 from flask import Blueprint, request, jsonify
 from werkzeug.security import check_password_hash
-from flask_jwt_extended import create_access_token
+from flask_jwt_extended import create_access_token, get_jwt, jwt_required, get_jwt_identity
 from marshmallow import ValidationError
 from sqlalchemy.exc import IntegrityError
 from src.extensions import db
 from app.crud.user import get_all_users, get_user, create_user, get_user_by_email
-from app.schemas import UserSchema, UserProfileSchema, UserRegistrationSchema, UserLoginSchema
+from app.crud.revoked_token import add_revoked_token, get_revoked_token
+from app.schemas import UserSchema, UserProfileSchema, UserRegistrationSchema, UserLoginSchema, TokenSchema
+from src.extensions import jwt
 
 users_bp = Blueprint('users', __name__)
 auth_bp = Blueprint('auth', __name__)
+
+@jwt.token_in_blocklist_loader
+def check_if_token_revoked(jwt_header, jwt_payload: dict) -> bool:
+    jti = jwt_payload["jti"]
+    token = get_revoked_token(jti)
+
+    return token is not None
 
 '''
 /api/users route
@@ -70,3 +79,10 @@ def login_user_endpoint():
     # generate token
     token = create_access_token(identity=str(user.id))
     return jsonify({'access_token': token}), 200
+
+@auth_bp.route('/auth/logout', methods=['POST'])
+@jwt_required()
+def logout_user_endpoint():
+    jti = get_jwt()["jti"]
+    add_revoked_token(jti)
+    return jsonify({"message": "User successfully logged off"}), 200
