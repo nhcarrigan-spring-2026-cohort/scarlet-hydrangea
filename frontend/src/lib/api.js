@@ -81,7 +81,18 @@ export async function createBorrowRequest(payload) {
   }
 }
 
-
+// Borrowed tools by id
+export async function getBorrows(id) {
+  if (!id) {
+    return [];
+  }
+  try {
+    return await apiRequest("/api/borrows/?user_id=" + id);
+  } catch (err) {
+    console.warn(err);
+    throw err;
+  }
+}
 
 
 

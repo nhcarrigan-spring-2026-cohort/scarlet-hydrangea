@@ -1,7 +1,32 @@
-import mockData from "../mock/tools.mock";
 import { Link } from "react-router-dom";
+import { getBorrows } from "../lib/api";
+import { useState, useEffect } from "react";
 
 export default function MyRequests() {
+  const [requests, setRequests] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const userId = localStorage.getItem("borrower_id");
+
+  useEffect(() => {
+    async function loadData() {
+      setLoading(true);
+      setError(null);
+      try {
+        const data = await getBorrows(userId);
+        setRequests(data);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadData();
+  }, [userId]);
+
+  if (loading) return <div className="container"><h1>Loading...</h1></div>;
+  if (error) return <div className="container"><h1>Error: {error}</h1></div>;
+
   return (
     <div className="container">
       <h1>My Requests</h1>
@@ -14,8 +39,8 @@ export default function MyRequests() {
           gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
         }}
       >
-        {mockData.length >= 1
-          ? mockData.map((data) => (
+        {requests.length >= 1
+          ? requests.map((data) => (
               <div
                 key={data.id}
                 style={{
@@ -27,7 +52,7 @@ export default function MyRequests() {
                   justifyContent: "space-between",
                 }}
               >
-                <h3 style={{ margin: 0 }}>{data.name}</h3>
+              <h3 style={{ margin: 0 }}>{data.item.name}</h3>
 
                 <div
                   style={{
@@ -39,13 +64,13 @@ export default function MyRequests() {
                 >
                   <span className="muted">
                     Status:{" "}
-                    {data.available === true
+                    {data.status === "approved"
                       ? "Approved ✅"
                       : "Pending ⏳"}
                   </span>
 
                   <Link
-                    to={`/tools/${data.id}`}
+                    to={`/tools/${data.item.id}`}
                     style={{
                       width: "fit-content",
                       padding: "6px 12px",
