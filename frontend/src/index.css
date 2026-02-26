@@ -190,9 +190,9 @@ h3 {
   background: #f0f0f0;
 }
 
-/* Spinner */ 
+/* Spinner */
 
- .spinner {
+.spinner {
   width: 40px;
   height: 40px;
   border: 4px solid #ddd;
@@ -214,13 +214,17 @@ h3 {
 .badge {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
+  min-width: 110px;
+  height: 32px;
   gap: 6px;
-  padding: 6px 10px;
+  padding: 0 12px;
   border-radius: 999px;
   font-size: 12px;
   font-weight: 700;
   line-height: 1;
   border: 1px solid #3a3a3a;
+  white-space: nowrap;
 }
 
 .statusBadge {

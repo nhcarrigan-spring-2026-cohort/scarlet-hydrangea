@@ -1,4 +1,4 @@
-import mockTools from "../mock/tools.mock.js";
+
 
 const API_BASE_URL =
   (import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:5000").replace(/\/$/, "");
@@ -38,47 +38,35 @@ async function apiRequest(path, { headers, ...options } = {}) {
   return data;
 }
 
-// Tool catalog
+// Tool catalog - getTools()
 export async function getTools() {
-  try {
-    const data = await apiRequest("/api/tools");
+  const data = await apiRequest("/api/tools");
 
-    // support either: [ ...tools ] OR { tools: [ ...tools ] }
-    const tools = Array.isArray(data) ? data : data?.tools;
+  const tools = Array.isArray(data) ? data : data?.tools;
 
-    if (!Array.isArray(tools)) {
-      throw new Error("Unexpected response shape from /api/tools");
-    }
-
-    return tools;
-  } catch (err) {
-    console.warn("getTools: using mockTools fallback", err);
-    return mockTools;
+  if (!Array.isArray(tools)) {
+    throw new Error("Unexpected response shape from /api/tools");
   }
+
+  return tools;
 }
 
+
+// getToolById()
 export async function getToolById(id) {
   const idStr = String(id);
 
-  try {
-    const data = await apiRequest(`/api/tools/${idStr}`);
+  const data = await apiRequest(`/api/tools/${idStr}`);
 
-    // support either: { tool: {...} } OR { ...tool }
-    const tool = data?.tool ?? data;
+  const tool = data?.tool ?? data;
 
-    if (!tool || String(tool.id) !== idStr) {
-      throw new Error(`Tool ${idStr} not found or response shape changed`);
-    }
-
-    return tool;
-  } catch (err) {
-    console.warn("getToolById: using mockTools fallback", err);
-
-    const tool = mockTools.find((t) => String(t.id) === idStr);
-    if (!tool) throw new Error(`Tool ${idStr} not found`);
-    return tool;
+  if (!tool || String(tool.id) !== idStr) {
+    throw new Error(`Tool ${idStr} not found`);
   }
+
+  return tool;
 }
+
 
 // Borrowing
 export async function createBorrowRequest(payload) {
