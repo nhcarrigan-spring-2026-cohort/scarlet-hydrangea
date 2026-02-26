@@ -22,7 +22,7 @@ export default function ToolCard({ tool }) {
         {tool.category} • {tool.condition}
       </p>
 
-      <div style={{ marginTop: "auto" }}> {/* 👈 changed from 8 to "auto" */}
+      <div style={{ marginTop: "auto" }}>
         <Link to={`/tools/${tool.id}`}>View Details</Link>
       </div>
     </div>
