@@ -1,13 +1,12 @@
 import { useState } from "react";
 import ErrorMessage from "../components/ErrorMessage";
-import { useNavigate } from "react-router-dom";
+
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState({});
   const [apiError, setApiError] = useState("");
-  const navigate = useNavigate();
   // Regex to validate standard email format
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -68,7 +67,7 @@ export default function Login() {
       } else {
         const data = await response.json();
         localStorage.setItem("token", data.access_token);
-        navigate("/");
+        window.location.href = "/";
       }
     } catch (err) {
       setApiError("Couldn't connect to server.")
