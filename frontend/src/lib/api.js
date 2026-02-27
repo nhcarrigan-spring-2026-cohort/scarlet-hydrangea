@@ -17,21 +17,6 @@ function getAccessToken() {
   return localStorage.getItem("access_token");
 }
 
-// Best-effort decode (no validation) to pull user id from JWT payload.
-function getUserIdFromToken(token) {
-  try {
-    const [, payload] = token.split(".");
-    if (!payload) return null;
-
-    const json = atob(payload.replace(/-/g, "+").replace(/_/g, "/"));
-    const data = JSON.parse(json);
-
-    return data.sub ?? data.user_id ?? data.id ?? null;
-  } catch {
-    return null;
-  }
-}
-
 /**
  * Normalize backend tool shape -> frontend-friendly shape.
  * Backend returns: is_available, available_quantity
