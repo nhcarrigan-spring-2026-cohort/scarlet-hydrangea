@@ -80,10 +80,12 @@ async function apiRequest(path, { headers, ...options } = {}) {
   return data;
 }
 
-// Tool catalog - getTools()
+// Tool catalog
 export async function getTools() {
   try {
     const data = await apiRequest("/api/tools");
+
+    // support either: [ ...tools ] OR { tools: [ ...tools ] }
     const tools = Array.isArray(data) ? data : data?.tools;
 
     if (!Array.isArray(tools)) {
@@ -97,12 +99,13 @@ export async function getTools() {
   }
 }
 
-// getToolById()
 export async function getToolById(id) {
   const idStr = String(id);
 
   try {
     const data = await apiRequest(`/api/tools/${idStr}`);
+
+    // support either: { tool: {...} } OR { ...tool }
     const tool = data?.tool ?? data;
 
     if (!tool || String(tool.id) !== idStr) {
@@ -121,7 +124,7 @@ export async function getToolById(id) {
 
 /**
  * Borrowing
- * POST /api/borrows (note trailing slash to avoid preflight redirect)
+ * Use trailing slash to avoid CORS preflight redirect issues
  */
 export async function createBorrowRequest({ item_id }) {
   return await apiRequest("/api/borrows/", {
@@ -131,7 +134,7 @@ export async function createBorrowRequest({ item_id }) {
 }
 
 /**
- * Borrows list (legacy function name kept)
+ * Borrows list (legacy name kept)
  */
 export async function getBorrows(id) {
   const token = getAccessToken();
@@ -146,5 +149,6 @@ export async function getBorrows(id) {
     return await apiRequest(`/api/borrows/?user_id=${userId}`);
   }
 
+  // fallback: may become admin-only later
   return await apiRequest("/api/borrows/");
 }
