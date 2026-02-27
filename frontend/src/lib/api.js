@@ -14,11 +14,28 @@ class ApiError extends Error {
 }
 
 async function apiRequest(path, { headers, ...options } = {}) {
+  // Retrieve the access token from localStorage and normalize the HTTP method
+  const accessToken = localStorage.getItem("token");
+  const method = (options.method || "GET").toUpperCase();
+
+  // Prevent mutations (POST, PATCH, DELETE) if the user is not signed in
+  if (method != "GET" && !accessToken) {
+    throw new Error("Please sign in.")
+  }
+
+  const authHeaders = {};
+
+  // Add Authorization header using the Bearer scheme if the token exists
+  if (accessToken) {
+    authHeaders["Authorization"] = "Bearer " + accessToken;
+  }
+
   const res = await fetch(`${API_BASE_URL}${path}`, {
     ...options,
     headers: {
       "Content-Type": "application/json",
       ...headers,
+      ...authHeaders,
     },
   });
 
@@ -30,8 +47,13 @@ async function apiRequest(path, { headers, ...options } = {}) {
   }
 
   if (!res.ok) {
-    const message =
+    let message =
       (data && (data.error || data.message)) || `HTTP ${res.status} on ${path}`;
+    // Specific handling for expired or invalid tokens (401 Unauthorized)
+    if (res.status === 401) {
+      message = "Session expired, please log in again";
+      localStorage.removeItem("token");
+    }
     throw new ApiError(message, { status: res.status, data, path });
   }
 
