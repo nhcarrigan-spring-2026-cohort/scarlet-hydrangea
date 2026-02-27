@@ -274,7 +274,7 @@ Successful response (Response Code: 200) returns data formatted like this:
 
 Creates a new `borrow` entry in the database.
 
-Headers Required: Authorization: Bearer <access_token>
+**Headers Required:** `Authorization: Bearer <access_token>`
 
 Expected JSON request body:
 
@@ -317,6 +317,42 @@ Error response (Response Code: 401): Returned if the request lacks a valid Beare
 > - The `approved_at`, `borrowed_at`, and `due_date` fields will be `null` until the borrow is `approved` via `PATCH /api/borrows/<id>/approve`
 > - Until the borrow request is approved, the tool and can be requested by other users.
 > - The `returned_at` field will be `null` until the borrow is marked as `returned` via `PATCH /api/borrows/<id>/return`
+
+---
+
+### `GET /api/borrows/own` 
+
+Returns an array of all borrow requests, filtered by borrower ID.
+
+**Headers Required:** `Authorization: Bearer <access_token>`
+
+Successful response (Response Code: 200) returns data formatted like this:
+
+```json
+[
+  {
+    "approved_at": Date or null,
+    "borrowed_at": Date or null,
+    "borrower": {
+      "full_name": String,
+      "id": Integer,
+      "username": String
+    },
+    "due_date": Date or null,
+    "id": Integer,
+    "item": {
+      "category": String or null,
+      "condition": String,
+      "id": Integer,
+      "name": String
+    },
+    "requested_at": Date,
+    "returned_at": Date or null,
+    "status": String
+  }
+]
+```
+
 ---
 
 ### `GET /api/borrows?user_id=<id>` 
@@ -349,6 +385,7 @@ Successful response (Response Code: 200) returns data formatted like this:
   }
 ]
 ```
+
 ---
 
 ### `PATCH /api/borrows/<id>/approve` 
