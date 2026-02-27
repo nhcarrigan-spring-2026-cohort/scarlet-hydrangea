@@ -42,6 +42,7 @@ a {
   color: #8ab4ff;
   text-decoration: none;
 }
+
 a:hover {
   text-decoration: underline;
 }
@@ -52,10 +53,12 @@ h1 {
   line-height: 1.2;
   margin: 0 0 12px 0;
 }
+
 h2 {
   font-size: 1.4rem;
   margin: 24px 0 12px 0;
 }
+
 h3 {
   font-size: 1.1rem;
   margin: 0 0 8px 0;
@@ -190,6 +193,20 @@ h3 {
   background: #f0f0f0;
 }
 
+.nav__btn {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  cursor: pointer;
+  color: #111;
+  text-decoration: none;
+}
+
+.nav__btn:hover {
+  text-decoration: underline;
+}
+
 /* Spinner */
 
 .spinner {
@@ -207,6 +224,7 @@ h3 {
     transform: rotate(360deg);
   }
 }
+
 /* =========
    StatusBadge
    ========= */
@@ -252,10 +270,12 @@ h3 {
   background: rgba(59, 130, 246, 0.18);
   border-color: rgba(59, 130, 246, 0.35);
 }
+
 /* if it renders as a button */
 .statusBadge[type="button"] {
   cursor: pointer;
 }
+
 .statusBadge[type="button"]:hover {
   filter: brightness(1.05);
 }
@@ -307,4 +327,29 @@ h3 {
 
 .user-selector__input:focus {
   border-bottom-color: #ccc;
+}
+
+/* =========
+   Login
+   ========= */
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.errorMessage-animation {
+  animation: slideDown 0.3s ease-out forwards;
+}
+
+.login-card .btn-primary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.5);
 }
