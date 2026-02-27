@@ -1,7 +1,7 @@
 from src.extensions import db
 from app.models.revoked_token import RevokedToken
-from sqlalchemy import select
-from datetime import datetime, timezone
+from sqlalchemy import select, exists
+from datetime import datetime
 
 def add_revoked_token(jti: str, expires_at: datetime):
     """
@@ -13,6 +13,6 @@ def add_revoked_token(jti: str, expires_at: datetime):
     db.session.commit()
     return revoked_token
 
-def get_revoked_token(jti: str):
-    stmt = select(RevokedToken).where(RevokedToken.jti == jti)
-    return db.session.execute(stmt).scalar_one_or_none()
+def is_revoked_token(jti: str) -> bool:
+    stmt = select(exists().where(RevokedToken.jti == jti))
+    return db.session.execute(stmt).scalar()
