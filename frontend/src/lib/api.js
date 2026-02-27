@@ -69,6 +69,8 @@ async function apiRequest(path, { headers, ...options } = {}) {
 export async function getTools() {
   try {
     const data = await apiRequest("/api/tools");
+
+    // support either: [ ...tools ] OR { tools: [ ...tools ] }
     const tools = Array.isArray(data) ? data : data?.tools;
 
     if (!Array.isArray(tools)) {
@@ -87,6 +89,8 @@ export async function getToolById(id) {
 
   try {
     const data = await apiRequest(`/api/tools/${idStr}`);
+
+    // support either: { tool: {...} } OR { ...tool }
     const tool = data?.tool ?? data;
 
     if (!tool || String(tool.id) !== idStr) {
