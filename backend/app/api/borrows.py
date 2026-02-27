@@ -22,7 +22,14 @@ def get_borrows_endpoint():
     schema = BorrowSchema(many=True)
     return jsonify(schema.dump(borrows)), 200
 
-
+@borrows_bp.route('/own', methods=['GET'])
+@jwt_required()
+def get_own_borrows():
+    user_id = int(get_jwt_identity())
+    
+    borrows = borrow_crud.get_borrows_by_user(user_id)
+    schema = BorrowSchema(many=True)
+    return jsonify(schema.dump(borrows)), 200
 
 @borrows_bp.route('/<int:borrow_id>', methods=['GET'])
 def get_borrow_endpoint(borrow_id):
