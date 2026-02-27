@@ -3,13 +3,19 @@ import ErrorMessage from "../components/ErrorMessage";
 
 
 export default function Login() {
+  // If already logged in, redirect to home immediately
+  if (localStorage.getItem("token")) {
+    window.location.href = "/";
+    return null;
+  }
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState({});
   const [apiError, setApiError] = useState("");
   // Regex to validate standard email format
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
+  
   // Live validation: triggered when the user leaves the input field (blur)
   function validateEmail(e) {
     const value = e.target.value;
