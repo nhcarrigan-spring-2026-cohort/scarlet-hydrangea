@@ -29,7 +29,7 @@ class ItemSchema(ma.SQLAlchemyAutoSchema):
 
     # System controlled
     available_quantity = ma.Integer(dump_only=True, validate=validate.Range(min=0))
-    is_available = ma.Boolean(dump_only=True)
+    is_available = ma.Boolean(dump_only=True, data_key="available")
 
     # Display only
     owner = ma.Nested("UserSchema", only=("id", "username", "full_name"), dump_only=True)
