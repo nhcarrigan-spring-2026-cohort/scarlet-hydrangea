@@ -13,13 +13,13 @@ class ApiError extends Error {
   }
 }
 
-async function apiRequest(path, { headers, ...options } = {}) {
+export async function apiRequest(path, { headers, ...options } = {}) {
   // Retrieve the access token from localStorage and normalize the HTTP method
   const accessToken = localStorage.getItem("token");
   const method = (options.method || "GET").toUpperCase();
 
-  // Prevent mutations (POST, PATCH, DELETE) if the user is not signed in
-  if (method != "GET" && !accessToken) {
+  // Prevent mutations if not signed in, excluding the login endpoint itself which requires a POST to obtain the credentials
+  if (method != "GET" && !accessToken && path !== "/api/auth/login") {
     throw new Error("Please sign in.")
   }
 
