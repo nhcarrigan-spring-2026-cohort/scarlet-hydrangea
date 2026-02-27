@@ -9,11 +9,8 @@ export default function ToolDetail() {
   const [tool, setTool] = useState(null);
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState("");
-  const [requestSent, setRequestSent] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [requestError, setRequestError] = useState("");
 
-  // new: borrow request UX states
+  const [requestSent, setRequestSent] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [requestError, setRequestError] = useState("");
 
@@ -43,19 +40,6 @@ export default function ToolDetail() {
 
   const handleRequest = async () => {
     setRequestError("");
-<<<<<<< Updated upstream
-    setIsSubmitting(true);
-
-    try {
-      // Temporary borrower_id for MVP (until auth is added)
-      const borrowerId = Number(localStorage.getItem("borrower_id")) || 1;
-
-      await createBorrowRequest({
-        item_id: Number(tool.id),
-        borrower_id: borrowerId,
-      });
-
-=======
 
     const token = localStorage.getItem("access_token");
     if (!token) {
@@ -67,7 +51,6 @@ export default function ToolDetail() {
 
     try {
       await createBorrowRequest({ item_id: Number(tool.id) });
->>>>>>> Stashed changes
       setRequestSent(true);
     } catch (err) {
       setRequestError("Could not send request. Please try again.");
@@ -164,13 +147,7 @@ export default function ToolDetail() {
           )}
 
           {requestError && (
-<<<<<<< Updated upstream
-            <p style={{ color: "#f87171", marginTop: 10 }}>
-              {requestError}
-            </p>
-=======
             <p style={{ color: "#f87171", marginTop: 10 }}>{requestError}</p>
->>>>>>> Stashed changes
           )}
         </div>
       </div>
