@@ -11,7 +11,7 @@ def admin_required():
         def decorator(*args, **kwargs):
             verify_jwt_in_request()
             claims = get_jwt()
-            if claims["is_admin"]:
+            if claims.get("is_admin"):
                 return fn(*args, **kwargs)
             else:
                 return jsonify({'error': 'Access denied - requires admin permissions'}), 403
