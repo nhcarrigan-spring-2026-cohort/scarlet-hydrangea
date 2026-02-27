@@ -1,13 +1,39 @@
 import { useState } from "react";
+import ErrorMessage from "../components/ErrorMessage";
+import { useNavigate } from "react-router-dom";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const navigate = useNavigate();
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
-    console.log(email, password)
+    setError("");
+    const response = await fetch("/api/auth/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        email: email,
+        password: password,
+      })
+    });
+
+    try {
+      if (!response.ok) {
+        const data = await response.json();
+        setError(data.message || "Please try again");
+      } else {
+        const data = await response.json();
+        localStorage.setItem("token", data.access_token);
+        navigate("/");
+      }
+    } catch (err) {
+      setError("Couldn't connect to server.")
+    }
   }
 
   return (
@@ -36,6 +62,7 @@ export default function Login() {
             required
           />
           <button type="submit" className="btn btn-primary">Login</button>
+          {error && <ErrorMessage message={error} small />}
         </div>
       </form>
     </div>
