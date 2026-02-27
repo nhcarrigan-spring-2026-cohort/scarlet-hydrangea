@@ -13,6 +13,10 @@ export default function ToolDetail() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [requestError, setRequestError] = useState("");
 
+  // new: borrow request UX states
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [requestError, setRequestError] = useState("");
+
   useEffect(() => {
     let isMounted = true;
 
@@ -39,6 +43,7 @@ export default function ToolDetail() {
 
   const handleRequest = async () => {
     setRequestError("");
+<<<<<<< Updated upstream
     setIsSubmitting(true);
 
     try {
@@ -50,6 +55,19 @@ export default function ToolDetail() {
         borrower_id: borrowerId,
       });
 
+=======
+
+    const token = localStorage.getItem("access_token");
+    if (!token) {
+      setRequestError("Please log in to request a borrow.");
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      await createBorrowRequest({ item_id: Number(tool.id) });
+>>>>>>> Stashed changes
       setRequestSent(true);
     } catch (err) {
       setRequestError("Could not send request. Please try again.");
@@ -146,9 +164,13 @@ export default function ToolDetail() {
           )}
 
           {requestError && (
+<<<<<<< Updated upstream
             <p style={{ color: "#f87171", marginTop: 10 }}>
               {requestError}
             </p>
+=======
+            <p style={{ color: "#f87171", marginTop: 10 }}>{requestError}</p>
+>>>>>>> Stashed changes
           )}
         </div>
       </div>
