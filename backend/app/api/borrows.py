@@ -23,7 +23,7 @@ def get_borrows_endpoint():
 @borrows_bp.route('/own', methods=['GET'])
 @jwt_required()
 def get_own_borrows():
-    user_id = get_jwt_identity()
+    user_id = int(get_jwt_identity())
     
     borrows = borrow_crud.get_borrows_by_user(user_id)
     schema = BorrowSchema(many=True)
