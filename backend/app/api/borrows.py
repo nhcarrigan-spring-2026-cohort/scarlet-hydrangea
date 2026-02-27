@@ -2,11 +2,13 @@ from flask import Blueprint, request, jsonify
 from marshmallow import ValidationError
 from app.crud import borrow as borrow_crud
 from app.schemas.borrow import BorrowSchema
+from app.api.decorators import admin_required
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
 borrows_bp = Blueprint('borrows', __name__, url_prefix='/api/borrows')
 
 @borrows_bp.route('/', methods=['GET'])
+@admin_required()
 def get_borrows_endpoint():
     """Get all borrows, optionally filtered by user."""
     user_id = request.args.get('user_id', type=int)
