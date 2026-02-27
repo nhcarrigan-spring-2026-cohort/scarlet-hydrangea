@@ -17,21 +17,6 @@ function getAccessToken() {
   return localStorage.getItem("access_token");
 }
 
-// Best-effort decode (no validation) to pull user id from JWT payload.
-function getUserIdFromToken(token) {
-  try {
-    const [, payload] = token.split(".");
-    if (!payload) return null;
-
-    const json = atob(payload.replace(/-/g, "+").replace(/_/g, "/"));
-    const data = JSON.parse(json);
-
-    return data.sub ?? data.user_id ?? data.id ?? null;
-  } catch {
-    return null;
-  }
-}
-
 /**
  * Normalize backend tool shape -> frontend-friendly shape.
  * Backend returns: is_available, available_quantity
@@ -80,7 +65,7 @@ async function apiRequest(path, { headers, ...options } = {}) {
   return data;
 }
 
-// Tool catalog - getTools()
+// Tool catalog
 export async function getTools() {
   try {
     const data = await apiRequest("/api/tools");
@@ -97,7 +82,6 @@ export async function getTools() {
   }
 }
 
-// getToolById()
 export async function getToolById(id) {
   const idStr = String(id);
 
@@ -119,10 +103,7 @@ export async function getToolById(id) {
   }
 }
 
-/**
- * Borrowing
- * POST /api/borrows (note trailing slash to avoid preflight redirect)
- */
+// Borrowing (JWT required)
 export async function createBorrowRequest({ item_id }) {
   return await apiRequest("/api/borrows/", {
     method: "POST",
@@ -130,21 +111,8 @@ export async function createBorrowRequest({ item_id }) {
   });
 }
 
-/**
- * Borrows list (legacy function name kept)
- */
-export async function getBorrows(id) {
-  const token = getAccessToken();
-  if (!token) return [];
-
-  let userId = id;
-  if (!userId) {
-    userId = getUserIdFromToken(token);
-  }
-
-  if (userId != null) {
-    return await apiRequest(`/api/borrows/?user_id=${userId}`);
-  }
-
-  return await apiRequest("/api/borrows/");
+// Borrows list (requires explicit userId)
+export async function getBorrows(userId) {
+  if (!userId) return [];
+  return await apiRequest(`/api/borrows/?user_id=${userId}`);
 }
