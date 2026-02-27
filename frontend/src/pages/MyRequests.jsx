@@ -1,7 +1,9 @@
 import { Link } from "react-router-dom";
 import { getBorrows } from "../lib/api";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import StatusBadge from "../components/StatusBadge.jsx";
+import Loading from "../components/Loading.jsx";
+import ErrorMessage from "../components/ErrorMessage.jsx";
 
 export default function MyRequests() {
   const [requests, setRequests] = useState([]);
@@ -9,34 +11,32 @@ export default function MyRequests() {
   const [error, setError] = useState(null);
   const userId = localStorage.getItem("borrower_id");
 
-  useEffect(() => {
-    async function loadData() {
-      setLoading(true);
-      setError(null);
-      try {
-        const data = await getBorrows(userId);
-        setRequests(data);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
+  // Memorize loadData to prevent unnecessary useEffect executions unless userId changes
+  const loadData = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await getBorrows(userId);
+      setRequests(data);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
     }
-    loadData();
   }, [userId]);
+
+  useEffect(() => {
+    loadData();
+  }, [userId, loadData]);
 
   if (loading)
     return (
-      <div className="container">
-        <h1>Loading...</h1>
-      </div>
+      <Loading />
     );
 
   if (error)
     return (
-      <div className="container">
-        <h1>Error: {error}</h1>
-      </div>
+      <ErrorMessage message={error} onRetry={loadData} />
     );
 
   return (
@@ -76,56 +76,54 @@ export default function MyRequests() {
               Browse tools
             </Link>
           </div>
-        ) : (
-          requests.map((data) => {
-            const requestStatus = (data.status || "unknown").toLowerCase();
+        ) : (requests.map((data) => {
+          const requestStatus = (data.status || "unknown").toLowerCase();
 
-            return (
+          return (
+            <div
+              key={data.id}
+              style={{
+                border: "1px solid #ddd",
+                borderRadius: 8,
+                padding: 16,
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "space-between",
+              }}
+            >
+              <h3 style={{ margin: 0 }}>{data.item?.name ?? "Unnamed Tool"}</h3>
+
               <div
-                key={data.id}
                 style={{
-                  border: "1px solid #ddd",
-                  borderRadius: 8,
-                  padding: 16,
                   display: "flex",
                   flexDirection: "column",
-                  justifyContent: "space-between",
+                  gap: 8,
+                  marginTop: 12,
                 }}
               >
-                <h3 style={{ margin: 0 }}>
-                  {data.item?.name ?? "Unnamed Tool"}
-                </h3>
+                <span className="muted">Status:</span>
 
-                <div
+                {/* Badge should hug its content; fix that in StatusBadge styles */}
+                <StatusBadge status={requestStatus} />
+
+                <Link
+                  to={`/tools/${data.item?.id}`}
                   style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: 8,
-                    marginTop: 12,
+                    width: "fit-content",
+                    padding: "6px 12px",
+                    backgroundColor: "#007bff",
+                    color: "white",
+                    borderRadius: 4,
+                    textDecoration: "none",
+                    marginTop: "10px",
                   }}
                 >
-                  <span className="muted">Status:</span>
-
-                  <StatusBadge status={requestStatus} />
-
-                  <Link
-                    to={`/tools/${data.item?.id}`}
-                    style={{
-                      width: "fit-content",
-                      padding: "6px 12px",
-                      backgroundColor: "#007bff",
-                      color: "white",
-                      borderRadius: 4,
-                      textDecoration: "none",
-                      marginTop: "10px",
-                    }}
-                  >
-                    View Tool
-                  </Link>
-                </div>
+                  View Tool
+                </Link>
               </div>
-            );
-          })
+            </div>
+          );
+        })
         )}
       </div>
     </div>
