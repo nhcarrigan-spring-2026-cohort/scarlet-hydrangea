@@ -11,21 +11,26 @@ export default function Login() {
   async function handleSubmit(e) {
     e.preventDefault();
     setError("");
-    const response = await fetch("/api/auth/login", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        email: email,
-        password: password,
-      })
-    });
+    if (password.length < 8) {
+      setError("Password must be at least 8 characters.");
+      return;
+    }
 
     try {
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: email,
+          password: password,
+        })
+      });
+      
       if (!response.ok) {
         const data = await response.json();
-        setError(data.message || "Please try again");
+        setError(data.error || "Please try again");
       } else {
         const data = await response.json();
         localStorage.setItem("token", data.access_token);
@@ -41,26 +46,30 @@ export default function Login() {
       <form onSubmit={handleSubmit}>
         <div className="card-lg">
           <h1>Login</h1>
-          <label htmlFor="email">Email</label>
-          <input
-            id="email"
-            type="email"
-            name="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="input"
-            required
-          />
-          <label htmlFor="password">Password</label>
-          <input
-            id="password"
-            type="password"
-            name="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="input"
-            required
-          />
+          <div style={{ marginBottom: '1rem', textAlign: 'left' }}>
+            <label htmlFor="email">Email</label>
+            <input
+              id="email"
+              type="email"
+              name="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="input"
+              required
+            />
+          </div>
+          <div style={{ marginBottom: '1rem', textAlign: 'left' }}>
+            <label htmlFor="password">Password</label>
+            <input
+              id="password"
+              type="password"
+              name="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="input"
+              required
+            />
+          </div>
           <button type="submit" className="btn btn-primary">Login</button>
           {error && <ErrorMessage message={error} small />}
         </div>
