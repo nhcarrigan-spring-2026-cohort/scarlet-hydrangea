@@ -1,6 +1,4 @@
-// frontend/src/lib/api.js
-
-const API_BASE_URL =
+ const API_BASE_URL =
   (import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:5000").replace(/\/$/, "");
 
 export class ApiError extends Error {
@@ -13,26 +11,39 @@ export class ApiError extends Error {
   }
 }
 
+// Some older branches used "access_token" — support both.
 function getToken() {
-  // Login page stores "token", but some teammates used "access_token"
   return localStorage.getItem("token") || localStorage.getItem("access_token");
 }
 
+// Only used if backend does NOT provide /api/borrows/own/.
 function decodeJwtUserId(token) {
-  // Best-effort decode for fallback ONLY (no verification)
   try {
     const [, payload] = token.split(".");
     if (!payload) return null;
 
     const json = atob(payload.replace(/-/g, "+").replace(/_/g, "/"));
     const data = JSON.parse(json);
+
     return data.sub ?? data.user_id ?? data.id ?? null;
   } catch {
     return null;
   }
 }
 
-async function apiRequest(path, { headers, auth = false, ...options } = {}) {
+// Safely parse JSON if present, otherwise null.
+async function safeParseJson(res) {
+  const ct = res.headers.get("content-type") || "";
+  if (!ct.includes("application/json")) return null;
+
+  try {
+    return await res.json();
+  } catch {
+    return null;
+  }
+}
+
+async function apiRequest(path, { headers = {}, auth = false, ...options } = {}) {
   const token = getToken();
 
   const res = await fetch(`${API_BASE_URL}${path}`, {
@@ -44,17 +55,15 @@ async function apiRequest(path, { headers, auth = false, ...options } = {}) {
     },
   });
 
-  let data = null;
-  try {
-    data = await res.json();
-  } catch {
-    // Non-JSON responses (HTML error pages, empty bodies) are possible.
-  }
+  const data = await safeParseJson(res);
 
   if (!res.ok) {
     const message =
-      (data && (data.error || data.message || data.detail)) ||
+      data?.error ||
+      data?.message ||
+      data?.detail ||
       `HTTP ${res.status} on ${path}`;
+
     throw new ApiError(message, { status: res.status, data, path });
   }
 
@@ -102,6 +111,7 @@ export async function registerUser(payload) {
 }
 
 /* =========================
+   Auth (optional helpers)
    Borrows (AUTH)
 ========================= */
 
@@ -111,7 +121,6 @@ export async function createBorrowRequest({ item_id }) {
     throw new Error("Missing or invalid item_id");
   }
 
-  // IMPORTANT: trailing slash avoids Flask redirect -> preflight/CORS failure
   return await apiRequest("/api/borrows/", {
     method: "POST",
     auth: true,
@@ -119,32 +128,33 @@ export async function createBorrowRequest({ item_id }) {
   });
 }
 
-// Keep legacy function name used in some pages/branches.
-// NOTE: backend may later restrict this to admin.
 export async function getBorrows(userId) {
   if (!userId) return [];
 
-  // Query endpoint can redirect too, so use trailing slash before the ?
   return await apiRequest(`/api/borrows/?user_id=${encodeURIComponent(userId)}`, {
     auth: true,
   });
 }
 
 // Preferred: logged-in user's borrows.
-// Tries /own/ first, then falls back to ?user_id=<sub> if /own doesn't exist.
 export async function getMyBorrows() {
   const token = getToken();
   if (!token) return [];
 
+  // 1) Preferred endpoint
   try {
     return await apiRequest("/api/borrows/own/", { auth: true });
   } catch {
-    const userId = decodeJwtUserId(token);
-    if (!userId) {
-      throw new Error("Could not determine user from token. Please log in again.");
-    }
-    return await apiRequest(`/api/borrows/?user_id=${encodeURIComponent(userId)}`, {
-      auth: true,
-    });
+    // fallback
   }
+
+  // 2) Fallback
+  const userId = decodeJwtUserId(token);
+  if (!userId) {
+    throw new Error("Could not determine user from token. Please log in again.");
+  }
+
+  return await apiRequest(`/api/borrows/?user_id=${encodeURIComponent(userId)}`, {
+    auth: true,
+  });
 }
