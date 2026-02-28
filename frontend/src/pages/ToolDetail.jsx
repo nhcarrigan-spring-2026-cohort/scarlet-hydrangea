@@ -1,6 +1,6 @@
 import { useParams, Link } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { getToolById } from "../lib/api.js";
+import { getToolById, createBorrowRequest } from "../lib/api.js";
 import StatusBadge from "../components/StatusBadge.jsx";
 
 export default function ToolDetail() {
@@ -9,7 +9,10 @@ export default function ToolDetail() {
   const [tool, setTool] = useState(null);
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState("");
+
   const [requestSent, setRequestSent] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [requestError, setRequestError] = useState("");
 
   useEffect(() => {
     let isMounted = true;
@@ -34,8 +37,26 @@ export default function ToolDetail() {
     };
   }, [id]);
 
-  const handleRequest = () => {
-    setRequestSent(true);
+  const handleRequest = async () => {
+    setRequestError("");
+
+    // must be logged in for JWT-protected endpoint
+    const token =
+      localStorage.getItem("token") || localStorage.getItem("access_token");
+    if (!token) {
+      setRequestError("Please log in to request a borrow.");
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      await createBorrowRequest({ item_id: Number(tool.id) });
+      setRequestSent(true);
+    } catch (err) {
+      setRequestError(err?.message || "Could not send request. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (loading) {
@@ -57,7 +78,9 @@ export default function ToolDetail() {
           <h1 style={{ marginBottom: 8 }}>Something went wrong</h1>
           <p className="muted">{errorMsg}</p>
           <div style={{ marginTop: 16 }}>
-            <Link className="btn" to="/tools">Back to Tools</Link>
+            <Link className="btn" to="/tools">
+              Back to Tools
+            </Link>
           </div>
         </div>
       </div>
@@ -78,10 +101,19 @@ export default function ToolDetail() {
 
   return (
     <div className="container-narrow">
-      <Link to="/tools" className="muted">← Back to Tools</Link>
+      <Link to="/tools" className="muted">
+        ← Back to Tools
+      </Link>
 
       <div className="card-lg" style={{ marginTop: 16 }}>
-        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "flex-start",
+            justifyContent: "space-between",
+            gap: 12,
+          }}
+        >
           <div>
             <h1 style={{ margin: 0 }}>{tool.name}</h1>
             <p className="muted" style={{ margin: "6px 0 0" }}>
@@ -94,17 +126,27 @@ export default function ToolDetail() {
         <div style={{ marginTop: 18 }}>
           <button
             className={`btn btn-primary ${tool.available ? "" : "btn-disabled"}`}
-            disabled={!tool.available || requestSent}
+            disabled={!tool.available || requestSent || isSubmitting}
             onClick={handleRequest}
             style={{ marginTop: 16 }}
           >
-            {requestSent ? "Request sent ✅" : (tool.available ? "Request to Borrow" : "Unavailable")}
+            {requestSent
+              ? "Request sent ✅"
+              : isSubmitting
+              ? "Sending..."
+              : tool.available
+              ? "Request to Borrow"
+              : "Unavailable"}
           </button>
 
           {!tool.available && (
             <p className="note" style={{ marginTop: 10 }}>
               This tool is currently unavailable.
             </p>
+          )}
+
+          {requestError && (
+            <p style={{ color: "#f87171", marginTop: 10 }}>{requestError}</p>
           )}
         </div>
       </div>

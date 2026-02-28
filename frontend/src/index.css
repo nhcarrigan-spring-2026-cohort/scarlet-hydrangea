@@ -280,6 +280,16 @@ h3 {
   filter: brightness(1.05);
 }
 
+/* Make badges hug their text instead of stretching */
+.badge,
+.statusBadge {
+  display: inline-flex;
+  width: fit-content;
+  max-width: 100%;
+  white-space: nowrap;
+  align-self: flex-start;
+}
+
 /*screen readers */
 .sr-only {
   position: absolute;
