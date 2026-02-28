@@ -112,27 +112,6 @@ export async function registerUser(payload) {
 
 /* =========================
    Auth (optional helpers)
-========================= */
-
-export async function login({ email, password }) {
-  const data = await apiRequest("/api/auth/login", {
-    method: "POST",
-    body: JSON.stringify({ email, password }),
-  });
-
-  const token = data?.access_token;
-  if (!token) throw new Error("Login succeeded but no access_token returned.");
-
-  localStorage.setItem("token", token);
-  return token;
-}
-
-export function logout() {
-  localStorage.removeItem("token");
-  localStorage.removeItem("access_token");
-}
-
-/* =========================
    Borrows (AUTH)
 ========================= */
 
