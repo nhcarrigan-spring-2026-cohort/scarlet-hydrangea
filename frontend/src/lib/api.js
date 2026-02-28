@@ -1,5 +1,3 @@
-
-
 const API_BASE_URL =
   (import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:5000").replace(/\/$/, "");
 
@@ -97,13 +95,12 @@ export async function getBorrows(id) {
   }
 }
 
-// Borrowed tools of the logged user
-export async function getMyBorrows() {
-  try {
-    return await apiRequest("/api/borrows/own");
-  } catch (err) {
-    console.warn(err);
-    throw err;
-  }
+// Users - Registration
+export async function registerUser(payload) {
+  // payload: { email, username, full_name, password }
+  return await apiRequest("/api/users", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
 }
 
