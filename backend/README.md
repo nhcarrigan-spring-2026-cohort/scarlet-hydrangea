@@ -164,7 +164,7 @@ After starting the backend service, the API endpoints can be reached under the b
 
 ### `/api/auth/logout` (method: `POST`)
 
-- `POST` request accepts _any_ request body, revokes the current JWT Bearer token. **Requires a valid JWT Bearer token.**
+- `POST` request does not need a request body. Revokes the current JWT Bearer token. **Requires a valid JWT Bearer token.**
 
 ### `/api/tools/<id>` (method: `GET`)
 
