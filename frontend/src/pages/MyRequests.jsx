@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
-import { getMyBorrows } from "../lib/api";
 import { useState, useEffect, useCallback } from "react";
+
+import { getMyBorrows } from "../lib/api";
 import StatusBadge from "../components/StatusBadge.jsx";
 import Loading from "../components/Loading.jsx";
 import ErrorMessage from "../components/ErrorMessage.jsx";
@@ -8,17 +9,17 @@ import ErrorMessage from "../components/ErrorMessage.jsx";
 export default function MyRequests() {
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState("");
 
-  // Memorize loadData to prevent unnecessary useEffect executions unless userId changes
   const loadData = useCallback(async () => {
     setLoading(true);
-    setError(null);
+    setError("");
+
     try {
       const data = await getMyBorrows();
-      setRequests(data);
+      setRequests(Array.isArray(data) ? data : []);
     } catch (err) {
-      setError(err.message);
+      setError(err?.message || "Failed to load your requests.");
     } finally {
       setLoading(false);
     }
@@ -28,15 +29,9 @@ export default function MyRequests() {
     loadData();
   }, [loadData]);
 
-  if (loading)
-    return (
-      <Loading />
-    );
+  if (loading) return <Loading />;
 
-  if (error)
-    return (
-      <ErrorMessage message={error} onRetry={loadData} />
-    );
+  if (error) return <ErrorMessage message={error} onRetry={loadData} />;
 
   return (
     <div className="container">
@@ -64,7 +59,7 @@ export default function MyRequests() {
               to="/tools"
               style={{
                 display: "inline-block",
-                marginTop: "12px",
+                marginTop: 12,
                 padding: "8px 16px",
                 backgroundColor: "#007bff",
                 color: "white",
@@ -75,54 +70,58 @@ export default function MyRequests() {
               Browse tools
             </Link>
           </div>
-        ) : (requests.map((data) => {
-          const requestStatus = (data.status || "unknown").toLowerCase();
+        ) : (
+          requests.map((borrow) => {
+            const requestStatus = String(borrow.status || "unknown").toLowerCase();
+            const toolId = borrow.item?.id;
+            const toolName = borrow.item?.name ?? "Unnamed Tool";
 
-          return (
-            <div
-              key={data.id}
-              style={{
-                border: "1px solid #ddd",
-                borderRadius: 8,
-                padding: 16,
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "space-between",
-              }}
-            >
-              <h3 style={{ margin: 0 }}>{data.item?.name ?? "Unnamed Tool"}</h3>
-
+            return (
               <div
+                key={borrow.id}
                 style={{
+                  border: "1px solid #ddd",
+                  borderRadius: 8,
+                  padding: 16,
                   display: "flex",
                   flexDirection: "column",
-                  gap: 8,
-                  marginTop: 12,
+                  justifyContent: "space-between",
                 }}
               >
-                <span className="muted">Status:</span>
+                <h3 style={{ margin: 0 }}>{toolName}</h3>
 
-                {/* Badge should hug its content; fix that in StatusBadge styles */}
-                <StatusBadge status={requestStatus} />
-
-                <Link
-                  to={`/tools/${data.item?.id}`}
+                <div
                   style={{
-                    width: "fit-content",
-                    padding: "6px 12px",
-                    backgroundColor: "#007bff",
-                    color: "white",
-                    borderRadius: 4,
-                    textDecoration: "none",
-                    marginTop: "10px",
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 8,
+                    marginTop: 12,
                   }}
                 >
-                  View Tool
-                </Link>
+                  <span className="muted">Status:</span>
+
+                  <StatusBadge status={requestStatus} />
+
+                  {toolId ? (
+                    <Link
+                      to={`/tools/${toolId}`}
+                      style={{
+                        width: "fit-content",
+                        padding: "6px 12px",
+                        backgroundColor: "#007bff",
+                        color: "white",
+                        borderRadius: 4,
+                        textDecoration: "none",
+                        marginTop: 10,
+                      }}
+                    >
+                      View Tool
+                    </Link>
+                  ) : null}
+                </div>
               </div>
-            </div>
-          );
-        })
+            );
+          })
         )}
       </div>
     </div>
