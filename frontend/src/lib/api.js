@@ -106,7 +106,7 @@ export async function getMyBorrows() {
   const token = getToken();
   if (!token) return [];
 
-  // Try /own first (if it exists)
+
   try {
     return await apiRequest("/api/borrows/own/", { auth: true });
   } catch (err) {
