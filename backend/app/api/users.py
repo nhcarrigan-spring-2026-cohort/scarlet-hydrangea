@@ -1,9 +1,10 @@
 from flask import Blueprint, request, jsonify
 from werkzeug.security import check_password_hash
-from flask_jwt_extended import create_access_token
+from flask_jwt_extended import create_access_token, jwt_required
 from marshmallow import ValidationError
 from sqlalchemy.exc import IntegrityError
 from src.extensions import db
+from app.utils.decorators import admin_required
 from app.crud.user import get_all_users, get_user, create_user, get_user_by_email
 from app.schemas import UserSchema, UserProfileSchema, UserRegistrationSchema, UserLoginSchema
 
@@ -14,12 +15,14 @@ auth_bp = Blueprint('auth', __name__)
 /api/users route
 '''
 @users_bp.route('/users', methods=['GET'])
+@admin_required()
 def get_users_endpoint():
     users = get_all_users()
     schema = UserSchema(many=True)                  # many=True when dealing with iterable collections of objects.
     return jsonify(schema.dump(users)), 200     
 
 @users_bp.route('/users/<int:user_id>', methods=['GET'])
+@jwt_required()
 def get_user_endpoint(user_id):
     user = get_user(user_id)
     if not user:
