@@ -94,5 +94,12 @@ export async function getBorrows(id) {
   }
 }
 
-
+// Users - Registration
+export async function registerUser(payload) {
+  // payload: { email, username, full_name, password }
+  return await apiRequest("/api/users", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
 
