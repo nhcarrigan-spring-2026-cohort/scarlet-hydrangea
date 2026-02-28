@@ -146,12 +146,12 @@ After starting the backend service, the API endpoints can be reached under the b
 
 ### `/api/users` (methods: `GET`, `POST`)
 
-- `GET` request returns an array of registered users (if any are present in the database), or an empty array if there are no registered users.
+- `GET` request returns an array of registered users (if any are present in the database), or an empty array if there are no registered users. **Admin Only Functionality, Requires Admin JWT Token**
 - `POST` request accepts an object containing new user data and creates a new `user` entry in the database.
 
 ### `/users/<user_id>` (method: `GET`)
 
-- Returns user's profile data (including list of owned and currently borrowed items) if the user with the given id was found in the database, or an error with a status code `404`.
+- Returns user's profile data (including list of owned and currently borrowed items) if the user with the given id was found in the database, or an error with a status code `404`. **Requires valid JWT Token**
 
 ### `/api/tools` (methods: `GET`, `POST`)
 
@@ -166,9 +166,9 @@ After starting the backend service, the API endpoints can be reached under the b
 
 - Returns tool data (including the tool's owner data) if a tool with the given id was found in the database, or an error with a status code `404`.
 
-### `/api/borrows` (methods: `GET`, `POST`)
+    ### `/api/borrows` (methods: `GET`, `POST`)
 
-- `GET` request returns an array of all borrow requests in the database (pending, approved, and returned), or an empty array if there are no borrow requests.
+    - `GET` request returns an array of all borrow requests in the database (pending, approved, and returned), or an empty array if there are no borrow requests. **Admin Only Functionality, Requires Admin JWT Token**
 - `POST` request accepts an object containing the tool id; the borrower's identity is securely extracted from the provided authentication token. Creates a new `borrow` entry in the database. **Requires a valid JWT Bearer token.**
 
 ### `/api/borrows/own` (methods: `GET`)
@@ -181,11 +181,11 @@ After starting the backend service, the API endpoints can be reached under the b
 
 ### `/api/borrows/<id>/approve` (method: `PATCH`)
 
-- Takes an id of an open borrow request, decrements the requested tool's availability, and sets the `due_date` of the borrow request to one week after the request has been approved.
+- Takes an id of an open borrow request, decrements the requested tool's availability, and sets the `due_date` of the borrow request to one week after the request has been approved. **Admin Only Functionality, Requires Admin JWT Token**
 
 ### `/api/borrows/<id>/return` (method: `PATCH`)
 
-- Takes an id of an approved borrow request. It increments the requested tool's availability and sets the `returned_at` date of the borrow request.
+- Takes an id of an approved borrow request. It increments the requested tool's availability and sets the `returned_at` date of the borrow request. **Admin Only Functionality, Requires Admin JWT Token**
 ---
 
 ## Project Structure
