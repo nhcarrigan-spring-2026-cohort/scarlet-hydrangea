@@ -14,10 +14,13 @@ class ApiError extends Error {
 }
 
 async function apiRequest(path, { headers, ...options } = {}) {
+  const jwtToken = localStorage.getItem("token");
+
   const res = await fetch(`${API_BASE_URL}${path}`, {
     ...options,
     headers: {
       "Content-Type": "application/json",
+      "Authorization": `Bearer ${jwtToken ? jwtToken : ""}`,
       ...headers,
     },
   });
@@ -34,7 +37,7 @@ async function apiRequest(path, { headers, ...options } = {}) {
       (data && (data.error || data.message)) || `HTTP ${res.status} on ${path}`;
     throw new ApiError(message, { status: res.status, data, path });
   }
-
+  
   return data;
 }
 
