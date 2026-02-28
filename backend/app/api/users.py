@@ -70,7 +70,8 @@ def login_user_endpoint():
         return jsonify({'error': 'Invalid email or password'}), 401
     
     # generate token
-    token = create_access_token(identity=str(user.id))
+    additional_claims = {"is_admin": user.is_admin}
+    token = create_access_token(identity=str(user.id), additional_claims=additional_claims)
     return jsonify({'access_token': token}), 200
 
 @auth_bp.route('/auth/logout', methods=['POST'])
@@ -81,6 +82,3 @@ def logout_user_endpoint():
     expires_at = datetime.fromtimestamp(timestamp=jwt_payload["exp"], tz=timezone.utc)
     add_revoked_token(jti=jti, expires_at=expires_at)
     return jsonify({"message": "User successfully logged off"}), 200
-    additional_claims = {"is_admin": user.is_admin}
-    token = create_access_token(identity=str(user.id), additional_claims=additional_claims)
-    return jsonify({'access_token': token}), 200
