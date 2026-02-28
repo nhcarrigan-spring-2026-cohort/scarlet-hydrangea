@@ -31,6 +31,9 @@ Successful response (Response Code: 200) should return:
 
 Returns an array of registered users or an empty array if there are no registered users.
 
+**Headers Required:** `Authorization: Bearer <access_token>` (*Note: Requires Admin privileges*)
+
+
 Successful response (Response Code: 200) returns data formatted like this:
 
 ```json
@@ -82,6 +85,8 @@ Successful response (Response Code: 201) returns data formatted like this:
 ### `GET /api/users/<user_id>` 
 
 Returns user's profile data including list of owned items and borrow history. Returns `404` if user not found.
+
+**Headers Required:** `Authorization: Bearer <access_token>` 
 
 Successful response (Response Code: 200) returns data formatted like this:
 
@@ -255,6 +260,8 @@ Successful response (Response Code: 200) returns data formatted like this:
 
 Returns an array of all borrow requests in the database (pending, approved, and returned), or an empty array if there are no borrow requests.
 
+**Headers Required:** `Authorization: Bearer <access_token>` (*Note: Requires Admin privileges*)
+
 Successful response (Response Code: 200) returns data formatted like this:
 
 ```json
@@ -372,6 +379,8 @@ Successful response (Response Code: 200) returns data formatted like this:
 
 Returns an array of all borrow requests, filtered by borrower ID.
 
+**Headers Required:** `Authorization: Bearer <access_token>` (*Note: Requires Admin privileges*)
+
 Successful response (Response Code: 200) returns data formatted like this:
 
 ```json
@@ -405,6 +414,8 @@ Successful response (Response Code: 200) returns data formatted like this:
 
 Approves a pending borrow request. Decrements the tool's `available_quantity` and sets the `due_date` to one week from approval.
 
+**Headers Required:** `Authorization: Bearer <access_token>` (*Note: Requires Admin privileges*)
+
 The response (with a status code `200`) will be the same structure as borrow objects, with `approved_at`, `borrowed_at`, and `due_date` now populated, and `status` changed to `"approved"`.
 
 ---
@@ -412,6 +423,8 @@ The response (with a status code `200`) will be the same structure as borrow obj
 ### `PATCH /api/borrows/<id>/return`
 
 Marks an approved borrow as returned. Increments the tool's `available_quantity` and records the return timestamp.
+
+**Headers Required:** `Authorization: Bearer <access_token>` (*Note: Requires Admin privileges*)
 
 The response (with a status code `200`) will be the same structure as borrow objects, with `returned_at` now populated and `status` changed to `"returned"`.
 
