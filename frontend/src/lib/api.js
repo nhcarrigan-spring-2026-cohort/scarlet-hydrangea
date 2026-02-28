@@ -1,7 +1,6 @@
-
-
-const API_BASE_URL =
-  (import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:5000").replace(/\/$/, "");
+const API_BASE_URL = (
+  import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:5000"
+).replace(/\/$/, "");
 
 class ApiError extends Error {
   constructor(message, { status, data, path }) {
@@ -13,29 +12,37 @@ class ApiError extends Error {
   }
 }
 
-async function apiRequest(path, { headers, ...options } = {}) {
+async function apiRequest(path, { headers = {}, ...options } = {}) {
+  const token = localStorage.getItem("token");
+
   const res = await fetch(`${API_BASE_URL}${path}`, {
     ...options,
     headers: {
       "Content-Type": "application/json",
+      ...(token && { Authorization: `Bearer ${token}` }),
       ...headers,
     },
   });
 
-  let data = null;
-  try {
-    data = await res.json();
-  } catch {
-    // sometimes error pages are HTML, not JSON
-  }
-
   if (!res.ok) {
-    const message =
-      (data && (data.error || data.message)) || `HTTP ${res.status} on ${path}`;
-    throw new ApiError(message, { status: res.status, data, path });
+    let data = null;
+
+    try {
+      data = await res.json();
+    } catch {}
+
+    throw new ApiError(data?.error || `HTTP ${res.status}`, {
+      status: res.status,
+      data,
+      path,
+    });
   }
 
-  return data;
+  return res.json();
+}
+
+export async function getAllBorrows() {
+  return await apiRequest("/api/borrows/");
 }
 
 // Tool catalog - getTools()
@@ -51,7 +58,6 @@ export async function getTools() {
   return tools;
 }
 
-
 // getToolById()
 export async function getToolById(id) {
   const idStr = String(id);
@@ -66,7 +72,6 @@ export async function getToolById(id) {
 
   return tool;
 }
-
 
 // Borrowing
 export async function createBorrowRequest(payload) {
@@ -93,6 +98,3 @@ export async function getBorrows(id) {
     throw err;
   }
 }
-
-
-
