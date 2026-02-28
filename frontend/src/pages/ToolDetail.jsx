@@ -39,16 +39,8 @@ export default function ToolDetail() {
 
   const handleRequest = async () => {
     setRequestError("");
-
-    // must be logged in for JWT-protected endpoint
-    const token =
-      localStorage.getItem("token") || localStorage.getItem("access_token");
-    if (!token) {
-      setRequestError("Please log in to request a borrow.");
-      return;
-    }
-
     setIsSubmitting(true);
+    
     try {
       await createBorrowRequest({ item_id: Number(tool.id) });
       setRequestSent(true);

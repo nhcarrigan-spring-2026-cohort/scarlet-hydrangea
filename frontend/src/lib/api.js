@@ -49,15 +49,15 @@ export async function apiRequest(path, { headers = {}, auth = false, ...options 
   const method = (options.method || "GET").toUpperCase();
 
   // Prevent mutations if not signed in, excluding the login and users endpoints which requires a POST to obtain the credentials
-  if (method != "GET" && !token && path !== "/api/auth/login" && path !== "/api/users") {
-    throw new Error("Please sign in.")
+  if ((method !== "GET" || auth) && !token && path !== "/api/auth/login" && path !== "/api/users") {
+    throw new Error("Please log in to request a borrow.");
   }
 
   const res = await fetch(`${API_BASE_URL}${path}`, {
     ...options,
     headers: {
       "Content-Type": "application/json",
-      ...(auth && token ? { Authorization: `Bearer ${token}` } : {}),
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...headers,
     },
   });
