@@ -81,3 +81,6 @@ def logout_user_endpoint():
     expires_at = datetime.fromtimestamp(timestamp=jwt_payload["exp"], tz=timezone.utc)
     add_revoked_token(jti=jti, expires_at=expires_at)
     return jsonify({"message": "User successfully logged off"}), 200
+    additional_claims = {"is_admin": user.is_admin}
+    token = create_access_token(identity=str(user.id), additional_claims=additional_claims)
+    return jsonify({'access_token': token}), 200

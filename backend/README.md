@@ -175,6 +175,10 @@ After starting the backend service, the API endpoints can be reached under the b
 - `GET` request returns an array of all borrow requests in the database (pending, approved, and returned), or an empty array if there are no borrow requests.
 - `POST` request accepts an object containing the tool id; the borrower's identity is securely extracted from the provided authentication token. Creates a new `borrow` entry in the database. **Requires a valid JWT Bearer token.**
 
+### `/api/borrows/own` (methods: `GET`)
+
+- Returns an array of all borrow requests, filtered by the borrower's id (id is extracted from the JWT Bearer token). The response structure is the same as the data returned by `/api/borrows`. **Requires a valid JWT Bearer token.**
+
 ### `/api/borrows?user_id=<id>` (method: `GET`)
 
 - Returns an array of all borrow requests, filtered by the borrower's id. The response structure is the same as the data returned by `/api/borrows`.
