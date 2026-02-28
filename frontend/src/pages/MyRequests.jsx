@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { getBorrows } from "../lib/api";
+import { getMyBorrows } from "../lib/api";
 import { useState, useEffect, useCallback } from "react";
 import StatusBadge from "../components/StatusBadge.jsx";
 import Loading from "../components/Loading.jsx";
@@ -9,25 +9,24 @@ export default function MyRequests() {
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const userId = localStorage.getItem("borrower_id");
 
   // Memorize loadData to prevent unnecessary useEffect executions unless userId changes
   const loadData = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const data = await getBorrows(userId);
+      const data = await getMyBorrows();
       setRequests(data);
     } catch (err) {
       setError(err.message);
     } finally {
       setLoading(false);
     }
-  }, [userId]);
+  }, []);
 
   useEffect(() => {
     loadData();
-  }, [userId, loadData]);
+  }, [loadData]);
 
   if (loading)
     return (

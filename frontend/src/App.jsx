@@ -7,6 +7,8 @@ import ToolDetail from "./pages/ToolDetail.jsx";
 import MyRequests from "./pages/MyRequests.jsx";
 import Login from "./pages/Login.jsx";
 
+import Register from "./pages/Register.jsx"
+
 export default function App() {
   const hasToken = !!localStorage.getItem("token");
 
@@ -22,6 +24,7 @@ export default function App() {
         <Route path="/requests" element={<MyRequests />} />
         <Route path="/login" element={<Login />} />
         <Route path="*" element={<Navigate to="/" replace />} />
+        <Route path="/register" element={<Register />} />
       </Routes>
     </Layout>
   );
