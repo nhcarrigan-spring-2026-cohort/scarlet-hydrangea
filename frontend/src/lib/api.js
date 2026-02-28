@@ -1,7 +1,7 @@
-const API_BASE_URL =
+  const API_BASE_URL =
   (import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:5000").replace(/\/$/, "");
 
-class ApiError extends Error {
+export class ApiError extends Error {
   constructor(message, { status, data, path }) {
     super(message);
     this.name = "ApiError";
@@ -11,26 +11,39 @@ class ApiError extends Error {
   }
 }
 
+// Some older branches used "access_token" — support both.
 function getToken() {
-  // Team currently stores token under "token" in Login.jsx
   return localStorage.getItem("token") || localStorage.getItem("access_token");
 }
 
-// Fallback helper (no verification) — only used if backend DOESN'T provide /api/borrows/own
-function getUserIdFromToken(token) {
+// Only used if backend does NOT provide /api/borrows/own/.
+function decodeJwtUserId(token) {
   try {
     const [, payload] = token.split(".");
     if (!payload) return null;
 
     const json = atob(payload.replace(/-/g, "+").replace(/_/g, "/"));
     const data = JSON.parse(json);
+
     return data.sub ?? data.user_id ?? data.id ?? null;
   } catch {
     return null;
   }
 }
 
-async function apiRequest(path, { headers, auth = false, ...options } = {}) {
+// Safely parse JSON if present, otherwise null.
+async function safeParseJson(res) {
+  const ct = res.headers.get("content-type") || "";
+  if (!ct.includes("application/json")) return null;
+
+  try {
+    return await res.json();
+  } catch {
+    return null;
+  }
+}
+
+async function apiRequest(path, { headers = {}, auth = false, ...options } = {}) {
   const token = getToken();
 
   const res = await fetch(`${API_BASE_URL}${path}`, {
@@ -42,27 +55,27 @@ async function apiRequest(path, { headers, auth = false, ...options } = {}) {
     },
   });
 
-  let data = null;
-  try {
-    data = await res.json();
-  } catch {
-    // sometimes error pages are HTML, not JSON
-  }
+  const data = await safeParseJson(res);
 
   if (!res.ok) {
     const message =
-      (data && (data.error || data.message)) || `HTTP ${res.status} on ${path}`;
+      data?.error ||
+      data?.message ||
+      data?.detail ||
+      `HTTP ${res.status} on ${path}`;
+
     throw new ApiError(message, { status: res.status, data, path });
   }
 
   return data;
 }
 
-// --------------------
-// Tools (PUBLIC — no auth header)
-// --------------------
+/* =========================
+   Tools (PUBLIC)
+========================= */
+
 export async function getTools() {
-  const data = await apiRequest("/api/tools"); // keep exactly like docs
+  const data = await apiRequest("/api/tools");
   const tools = Array.isArray(data) ? data : data?.tools;
 
   if (!Array.isArray(tools)) {
@@ -74,7 +87,8 @@ export async function getTools() {
 
 export async function getToolById(id) {
   const idStr = String(id);
-  const data = await apiRequest(`/api/tools/${idStr}`); // keep exactly like docs
+
+  const data = await apiRequest(`/api/tools/${idStr}`);
   const tool = data?.tool ?? data;
 
   if (!tool || String(tool.id) !== idStr) {
@@ -84,14 +98,50 @@ export async function getToolById(id) {
   return tool;
 }
 
-// --------------------
-// Borrows (AUTH REQUIRED)
-// --------------------
+/* =========================
+   Users (PUBLIC)
+========================= */
+
+export async function registerUser(payload) {
+  // payload: { email, username, full_name, password }
+  return await apiRequest("/api/users", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
+/* =========================
+   Auth (optional helpers)
+========================= */
+
+export async function login({ email, password }) {
+  const data = await apiRequest("/api/auth/login", {
+    method: "POST",
+    body: JSON.stringify({ email, password }),
+  });
+
+  const token = data?.access_token;
+  if (!token) throw new Error("Login succeeded but no access_token returned.");
+
+  localStorage.setItem("token", token);
+  return token;
+}
+
+export function logout() {
+  localStorage.removeItem("token");
+  localStorage.removeItem("access_token");
+}
+
+/* =========================
+   Borrows (AUTH)
+========================= */
+
 export async function createBorrowRequest({ item_id }) {
   const itemId = Number(item_id);
-  if (!Number.isFinite(itemId)) throw new Error("Missing or invalid item_id");
+  if (!Number.isFinite(itemId)) {
+    throw new Error("Missing or invalid item_id");
+  }
 
-  // ✅ trailing slash avoids Flask redirect -> preflight/CORS failure
   return await apiRequest("/api/borrows/", {
     method: "POST",
     auth: true,
@@ -99,24 +149,33 @@ export async function createBorrowRequest({ item_id }) {
   });
 }
 
-/**
- * My borrows (AUTH REQUIRED)
- */
+export async function getBorrows(userId) {
+  if (!userId) return [];
+
+  return await apiRequest(`/api/borrows/?user_id=${encodeURIComponent(userId)}`, {
+    auth: true,
+  });
+}
+
+// Preferred: logged-in user's borrows.
 export async function getMyBorrows() {
   const token = getToken();
   if (!token) return [];
 
-
+  // 1) Preferred endpoint
   try {
     return await apiRequest("/api/borrows/own/", { auth: true });
-  } catch (err) {
-    // fall through
+  } catch {
+    // fallback
   }
 
-  const userId = getUserIdFromToken(token);
+  // 2) Fallback
+  const userId = decodeJwtUserId(token);
   if (!userId) {
     throw new Error("Could not determine user from token. Please log in again.");
   }
 
-  return await apiRequest(`/api/borrows/?user_id=${userId}`, { auth: true });
+  return await apiRequest(`/api/borrows/?user_id=${encodeURIComponent(userId)}`, {
+    auth: true,
+  });
 }
