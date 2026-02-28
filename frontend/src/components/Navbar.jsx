@@ -11,9 +11,24 @@ export default function Navbar() {
   const location = useLocation();
   
   // Clear authentication data and redirect to login page
-  function handleLogout() {
-    localStorage.removeItem("token");
-    window.location.href = "/login";
+  async function handleLogout() {
+    try {
+      const response = await fetch("/api/auth/logout", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${localStorage.getItem("token")}`
+         },
+        });
+      
+      if (response.ok) {
+        localStorage.removeItem("token");
+        window.location.href = "/login";
+      }
+    } catch (err) {
+      console.warn(err);
+      throw(err);
+    }
   };
 
   return (
