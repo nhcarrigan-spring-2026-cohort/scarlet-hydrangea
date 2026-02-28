@@ -72,7 +72,7 @@ export async function apiRequest(path, { headers = {}, auth = false, ...options 
       `HTTP ${res.status} on ${path}`;
 
     // Specific handling for expired or invalid tokens (401 Unauthorized)
-    if (res.status === 401) {
+    if (res.status === 401 || res.status === 422) {
       message = "Session expired, please log in again";
       localStorage.removeItem("token");
       localStorage.removeItem("access_token");
