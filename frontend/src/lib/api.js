@@ -1,4 +1,4 @@
- const API_BASE_URL =
+const API_BASE_URL =
   (import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:5000").replace(/\/$/, "");
 
 export class ApiError extends Error {
@@ -11,8 +11,9 @@ export class ApiError extends Error {
   }
 }
 
-// Some older branches used "access_token" — support both.
-function getToken() {
+
+export function getToken() {
+  // Some older branches used "access_token" — support both.
   return localStorage.getItem("token") || localStorage.getItem("access_token");
 }
 
@@ -43,14 +44,20 @@ async function safeParseJson(res) {
   }
 }
 
-async function apiRequest(path, { headers = {}, auth = false, ...options } = {}) {
+export async function apiRequest(path, { headers = {}, auth = false, ...options } = {}) {
   const token = getToken();
+  const method = (options.method || "GET").toUpperCase();
+
+  // Prevent mutations if not signed in, excluding the login and users endpoints which requires a POST to obtain the credentials
+  if ((method !== "GET" || auth) && !token && path !== "/api/auth/login" && path !== "/api/users") {
+    throw new Error("Please log in to request a borrow.");
+  }
 
   const res = await fetch(`${API_BASE_URL}${path}`, {
     ...options,
     headers: {
       "Content-Type": "application/json",
-      ...(auth && token ? { Authorization: `Bearer ${token}` } : {}),
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...headers,
     },
   });
@@ -58,12 +65,19 @@ async function apiRequest(path, { headers = {}, auth = false, ...options } = {})
   const data = await safeParseJson(res);
 
   if (!res.ok) {
-    const message =
+    let message =
       data?.error ||
       data?.message ||
       data?.detail ||
       `HTTP ${res.status} on ${path}`;
 
+    // Specific handling for expired or invalid tokens (401 Unauthorized)
+    if (res.status === 401 || res.status === 422) {
+      message = "Session expired, please log in again";
+      localStorage.removeItem("token");
+      localStorage.removeItem("access_token");
+
+    }
     throw new ApiError(message, { status: res.status, data, path });
   }
 

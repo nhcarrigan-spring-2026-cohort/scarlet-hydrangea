@@ -1,14 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ErrorMessage from "../components/ErrorMessage";
+import { apiRequest, getToken } from "../lib/api";
 import { Link } from "react-router-dom";
 
 export default function Login() {
-  // If already logged in, redirect to home immediately
-  if (localStorage.getItem("token")) {
-    window.location.href = "/";
-    return null;
-  }
-
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState({});
@@ -16,6 +11,13 @@ export default function Login() {
 
   // Regex to validate standard email format
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  // If already logged in, redirect to home immediately
+  useEffect(() => {
+    if (getToken()) {
+      window.location.href = "/";
+    }
+  }, []);
 
   // Live validation: triggered when the user leaves the input field (blur)
   function validateEmail(e) {
@@ -51,25 +53,16 @@ export default function Login() {
     if (Object.values(errors).some((err) => err !== "") || !email || !password) {
       return;
     }
-
+    // The login request is done by the API helper, it automatically handles JSON parsin and error checking
     try {
-      const response = await fetch("/api/auth/login", {
+      const data = await apiRequest("/api/auth/login", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email, password })
       });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        setApiError(data.error || "Please try again");
-        return;
-      }
-
       localStorage.setItem("token", data.access_token);
       window.location.href = "/";
     } catch (err) {
-      setApiError("Couldn't connect to server.");
+      setApiError(err.message);
     }
   }
 
