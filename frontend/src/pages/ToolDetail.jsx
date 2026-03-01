@@ -20,6 +20,7 @@ export default function ToolDetail() {
     async function fetchTool() {
       setLoading(true);
       setErrorMsg("");
+      setRequestError("");
 
       try {
         const data = await getToolById(id);
@@ -42,7 +43,9 @@ export default function ToolDetail() {
     setIsSubmitting(true);
     
     try {
-      await createBorrowRequest({ item_id: Number(tool.id) });
+      // Send BOTH keys so this works regardless of whether api.js expects item_id or tool_id
+      await createBorrowRequest({ item_id: toolId, tool_id: toolId });
+
       setRequestSent(true);
     } catch (err) {
       setRequestError(err?.message || "Could not send request. Please try again.");

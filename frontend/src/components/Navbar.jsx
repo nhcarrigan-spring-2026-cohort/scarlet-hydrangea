@@ -1,35 +1,19 @@
 import { NavLink, useLocation } from "react-router-dom";
 import UserSelector from "./UserSelector";
 
-// Check if the user is authenticated based on the presence of a token
-const linkClass = ({ isActive }) => ["nav__link", isActive && "active"].filter(Boolean).join(" ");
-
+const linkClass = ({ isActive }) =>
+  ["nav__link", isActive && "active"].filter(Boolean).join(" ");
 
 export default function Navbar() {
   const isLoggedIn = !!localStorage.getItem("token");
-  // Get current route to toggle visibility of the Login link
   const location = useLocation();
-  
-  // Clear authentication data and redirect to login page
-  async function handleLogout() {
-    try {
-      const response = await fetch("/api/auth/logout", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${localStorage.getItem("token")}`
-         },
-        });
-      
-      if (response.ok) {
-        localStorage.removeItem("token");
-        window.location.href = "/login";
-      }
-    } catch (err) {
-      console.warn(err);
-      throw(err);
-    }
-  };
+
+  function handleLogout() {
+    // Simple + reliable: backend logout endpoint may not exist.
+    localStorage.removeItem("token");
+    localStorage.removeItem("access_token");
+    window.location.href = "/login";
+  }
 
   return (
     <header className="nav">
@@ -46,23 +30,36 @@ export default function Navbar() {
           <NavLink to="/tools" className={linkClass}>
             Tools
           </NavLink>
-          
+
           {/* Hide Login link if already on the login page or if authenticated */}
           {!isLoggedIn && location.pathname !== "/login" && (
-            <NavLink to="/login" className={linkClass}>Login</NavLink>
+            <NavLink to="/login" className={linkClass}>
+              Login
+            </NavLink>
           )}
 
           {/* Show private routes and sign-out option only to authenticated users */}
           {isLoggedIn && (
             <>
-              <NavLink to="/requests" className={linkClass}>My Requests</NavLink>
-              <button onClick={handleLogout} className={`${linkClass({ isActive: false })} nav__btn`}>
+              <NavLink to="/requests" className={linkClass}>
+                My Requests
+              </NavLink>
+
+              <NavLink to="/admin/borrows" className={linkClass}>
+                Admin
+              </NavLink>
+
+              <button
+                onClick={handleLogout}
+                className={`${linkClass({ isActive: false })} nav__btn`}
+              >
                 Logout
               </button>
             </>
           )}
         </nav>
-        {/* Once logged in User ID manual selection is disabled  */}
+
+        {/* Once logged in User ID manual selection is disabled */}
         {!isLoggedIn && <UserSelector />}
       </div>
     </header>

@@ -17,7 +17,7 @@ export function getToken() {
   return localStorage.getItem("token") || localStorage.getItem("access_token");
 }
 
-// Only used if backend does NOT provide /api/borrows/own/.
+// Only used if backend does NOT provide /api/borrows/own.
 function decodeJwtUserId(token) {
   try {
     const [, payload] = token.split(".");
@@ -84,6 +84,27 @@ export async function apiRequest(path, { headers = {}, auth = false, ...options 
   return data;
 }
 
+/**
+ * Flask may redirect based on trailing slash.
+ * Redirects break CORS preflight when Authorization header triggers OPTIONS.
+ * This helper tries the given path and, if the browser reports "Failed to fetch",
+ * retries once with the opposite trailing-slash variant.
+ */
+async function apiRequestTryBothSlashes(path, options) {
+  try {
+    return await apiRequest(path, options);
+  } catch (err) {
+    const msg = String(err?.message || "").toLowerCase();
+    const isFetchFailure = msg.includes("failed to fetch");
+
+    // Only retry on the browser-level fetch failure case (CORS/preflight/redirect)
+    if (!isFetchFailure) throw err;
+
+    const alt = path.endsWith("/") ? path.slice(0, -1) : `${path}/`;
+    return await apiRequest(alt, options);
+  }
+}
+
 /* =========================
    Tools (PUBLIC)
 ========================= */
@@ -125,29 +146,48 @@ export async function registerUser(payload) {
 }
 
 /* =========================
-   Auth (optional helpers)
    Borrows (AUTH)
 ========================= */
 
-export async function createBorrowRequest({ item_id }) {
-  const itemId = Number(item_id);
-  if (!Number.isFinite(itemId)) {
-    throw new Error("Missing or invalid item_id");
+export async function createBorrowRequest(payload) {
+  const rawId =
+    payload?.item_id ??
+    payload?.tool_id ??
+    payload?.id ??
+    payload?.itemId ??
+    payload?.toolId;
+
+  const idNum = Number(rawId);
+  if (!Number.isFinite(idNum)) {
+    throw new Error("Missing or invalid tool/item id");
   }
 
-  return await apiRequest("/api/borrows/", {
+  // POST often triggers preflight because of Authorization header.
+  // Use tryBothSlashes to avoid Flask redirect preflight failure.
+  return await apiRequestTryBothSlashes("/api/borrows/", {
     method: "POST",
     auth: true,
-    body: JSON.stringify({ item_id: itemId }),
+    body: JSON.stringify({ item_id: idNum }),
   });
 }
 
+// Borrowed tools by user id (if still used anywhere)
 export async function getBorrows(userId) {
   if (!userId) return [];
 
-  return await apiRequest(`/api/borrows/?user_id=${encodeURIComponent(userId)}`, {
-    auth: true,
-  });
+  // Some backends prefer /api/borrows/?user_id=..., so try both if needed.
+  const pathNoSlash = `/api/borrows?user_id=${encodeURIComponent(userId)}`;
+  const pathWithSlash = `/api/borrows/?user_id=${encodeURIComponent(userId)}`;
+
+  try {
+    return await apiRequest(pathNoSlash, { auth: true });
+  } catch (err) {
+    const msg = String(err?.message || "").toLowerCase();
+    if (msg.includes("failed to fetch")) {
+      return await apiRequest(pathWithSlash, { auth: true });
+    }
+    throw err;
+  }
 }
 
 // Preferred: logged-in user's borrows.
@@ -155,20 +195,39 @@ export async function getMyBorrows() {
   const token = getToken();
   if (!token) return [];
 
-  // 1) Preferred endpoint
+  // Try both /own and /own/ to avoid preflight redirect issues.
   try {
-    return await apiRequest("/api/borrows/own/", { auth: true });
+    return await apiRequestTryBothSlashes("/api/borrows/own/", { auth: true });
   } catch {
     // fallback
   }
 
-  // 2) Fallback
+  // Fallback: decode user id and query
   const userId = decodeJwtUserId(token);
   if (!userId) {
     throw new Error("Could not determine user from token. Please log in again.");
   }
 
-  return await apiRequest(`/api/borrows/?user_id=${encodeURIComponent(userId)}`, {
-    auth: true,
-  });
+  const pathNoSlash = `/api/borrows?user_id=${encodeURIComponent(userId)}`;
+  const pathWithSlash = `/api/borrows/?user_id=${encodeURIComponent(userId)}`;
+
+  try {
+    return await apiRequest(pathNoSlash, { auth: true });
+  } catch (err) {
+    const msg = String(err?.message || "").toLowerCase();
+    if (msg.includes("failed to fetch")) {
+      return await apiRequest(pathWithSlash, { auth: true });
+    }
+    throw err;
+  }
+}
+
+/* =========================
+   Admin borrows (AUTH)
+========================= */
+
+export async function getAllBorrows() {
+  // GET can still preflight if Authorization header is present.
+  // Try both /api/borrows and /api/borrows/ to avoid redirect preflight failures.
+  return await apiRequestTryBothSlashes("/api/borrows", { auth: true });
 }
