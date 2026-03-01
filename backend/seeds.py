@@ -12,7 +12,10 @@ from faker import Faker
 TOTAL_USERS = 5
 ITEMS_PER_USER = 3
 
-CATEGORIES = ["power_tools", "cutting", "gardening", "cleaning", "measuring"]
+TOOL_DATA = {"power_tools": ["Cordless Drill", "Circular Saw", "Angle Grinder", "Impact Driver", "Jigsaw", "Orbital Sander"],
+             "gardening": ["Spade", "Hand Trowel", "Garden Gloves", "Rake", "Wheelbarrow"],
+             "cleaning": ["Vacuum Cleaner", "Plunger", "Scrub Brush", "Steam Cleaner"],
+             "measuring": ["Tape Measure", "Spirit Level", "Bore Gauge", "Gauge Block", "Digital Caliper"]}
 CONDITIONS = ["new", "like_new", "good", "fair", "poor"]
 
 
@@ -58,10 +61,11 @@ with app.app_context():
     items = []
     for user in users:
         for _ in range(ITEMS_PER_USER):
+            category = fake.random_element(list(TOOL_DATA.keys()))
             item = item_crud.add_item(
-                name=fake.bs().title(),
+                name=fake.random_element(TOOL_DATA[category]),
                 description=fake.sentence(),
-                category=fake.random_element(CATEGORIES),
+                category=category,
                 condition=fake.random_element(CONDITIONS),
                 owner_id=user.id,
                 total_quantity=fake.random_int(min=1, max=3)
