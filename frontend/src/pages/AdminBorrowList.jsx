@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getAllBorrows } from "../lib/api";
+import { getAllBorrows, approveBorrow, returnBorrow } from "../lib/api";
 import StatusBadge from "../components/StatusBadge";
 
 export default function AdminBorrowList() {
@@ -114,6 +114,21 @@ export default function AdminBorrowList() {
 
             <div style={{ marginTop: "10px" }}>
               <StatusBadge status={borrow.status} />
+            </div>
+
+            <div style={{ marginTop: "10px"}}>
+              {borrow.status === "pending" &&
+                (<button
+                  className="btn btn-success">
+                  Approve Request
+                </button>)}
+              {borrow.status === "approved" &&
+                (<button
+                  className="btn btn-secondary">
+                  Mark as Returned
+                </button>)}
+              {borrow.status === "returned" &&
+              (<span className="note">Transaction Completed</span>)}
             </div>
           </div>
         ))}
