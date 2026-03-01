@@ -1,11 +1,14 @@
 from flask import Blueprint, request, jsonify
 from werkzeug.security import check_password_hash
-from flask_jwt_extended import create_access_token
+from flask_jwt_extended import create_access_token, get_jwt, jwt_required
 from marshmallow import ValidationError
 from sqlalchemy.exc import IntegrityError
 from src.extensions import db
+from app.utils.decorators import admin_required
 from app.crud.user import get_all_users, get_user, create_user, get_user_by_email
+from app.crud.revoked_token import add_revoked_token
 from app.schemas import UserSchema, UserProfileSchema, UserRegistrationSchema, UserLoginSchema
+from datetime import datetime, timezone
 
 users_bp = Blueprint('users', __name__)
 auth_bp = Blueprint('auth', __name__)
@@ -14,12 +17,14 @@ auth_bp = Blueprint('auth', __name__)
 /api/users route
 '''
 @users_bp.route('/users', methods=['GET'])
+@admin_required()
 def get_users_endpoint():
     users = get_all_users()
     schema = UserSchema(many=True)                  # many=True when dealing with iterable collections of objects.
     return jsonify(schema.dump(users)), 200     
 
 @users_bp.route('/users/<int:user_id>', methods=['GET'])
+@jwt_required()
 def get_user_endpoint(user_id):
     user = get_user(user_id)
     if not user:
@@ -71,3 +76,12 @@ def login_user_endpoint():
     additional_claims = {"is_admin": user.is_admin}
     token = create_access_token(identity=str(user.id), additional_claims=additional_claims)
     return jsonify({'access_token': token}), 200
+
+@auth_bp.route('/auth/logout', methods=['POST'])
+@jwt_required()
+def logout_user_endpoint():
+    jwt_payload = get_jwt()
+    jti = jwt_payload["jti"]
+    expires_at = datetime.fromtimestamp(timestamp=jwt_payload["exp"], tz=timezone.utc)
+    add_revoked_token(jti=jti, expires_at=expires_at)
+    return jsonify({"message": "User successfully logged off"}), 200

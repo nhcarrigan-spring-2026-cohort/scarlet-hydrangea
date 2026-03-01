@@ -1,18 +1,17 @@
 import { NavLink, useLocation } from "react-router-dom";
 import UserSelector from "./UserSelector";
 
-// Check if the user is authenticated based on the presence of a token
 const linkClass = ({ isActive }) =>
   ["nav__link", isActive && "active"].filter(Boolean).join(" ");
 
 export default function Navbar() {
   const isLoggedIn = !!localStorage.getItem("token");
-  // Get current route to toggle visibility of the Login link
   const location = useLocation();
 
-  // Clear authentication data and redirect to login page
   function handleLogout() {
+    // Simple + reliable: backend logout endpoint may not exist.
     localStorage.removeItem("token");
+    localStorage.removeItem("access_token");
     window.location.href = "/login";
   }
 
@@ -45,6 +44,11 @@ export default function Navbar() {
               <NavLink to="/requests" className={linkClass}>
                 My Requests
               </NavLink>
+
+              <NavLink to="/admin/borrows" className={linkClass}>
+                Admin
+              </NavLink>
+
               <button
                 onClick={handleLogout}
                 className={`${linkClass({ isActive: false })} nav__btn`}
@@ -53,12 +57,9 @@ export default function Navbar() {
               </button>
             </>
           )}
-
-          <NavLink to="/admin/borrows" className={linkClass}>
-            Admin
-          </NavLink>
         </nav>
-        {/* Once logged in User ID manual selection is disabled  */}
+
+        {/* Once logged in User ID manual selection is disabled */}
         {!isLoggedIn && <UserSelector />}
       </div>
     </header>

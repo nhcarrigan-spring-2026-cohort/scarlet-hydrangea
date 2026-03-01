@@ -8,6 +8,8 @@ import MyRequests from "./pages/MyRequests.jsx";
 import Login from "./pages/Login.jsx";
 import AdminBorrowList from "./pages/AdminBorrowList.jsx";
 
+import Register from "./pages/Register.jsx"
+
 export default function App() {
   return (
     <Layout>
@@ -19,6 +21,7 @@ export default function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/admin/borrows" element={<AdminBorrowList />} />
         <Route path="*" element={<Navigate to="/" replace />} />
+        <Route path="/register" element={<Register />} />
       </Routes>
     </Layout>
   );

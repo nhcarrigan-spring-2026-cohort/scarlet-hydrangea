@@ -2,7 +2,7 @@ from flask import Blueprint, request, jsonify
 from marshmallow import ValidationError
 from app.crud import borrow as borrow_crud
 from app.schemas.borrow import BorrowSchema
-from app.api.decorators import admin_required
+from app.utils.decorators import admin_required
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
 borrows_bp = Blueprint('borrows', __name__, url_prefix='/api/borrows')
@@ -73,6 +73,7 @@ def create_borrow_endpoint():
 
 
 @borrows_bp.route('/<int:borrow_id>/approve', methods=['PATCH'])
+@admin_required()
 def approve_borrow_endpoint(borrow_id):
     """Approve a pending borrow request"""
     try:
@@ -86,6 +87,7 @@ def approve_borrow_endpoint(borrow_id):
 
 
 @borrows_bp.route('/<int:borrow_id>/return', methods=['PATCH'])
+@admin_required()
 def return_borrow_endpoint(borrow_id):
     try:
         borrow = borrow_crud.return_borrow(borrow_id)
