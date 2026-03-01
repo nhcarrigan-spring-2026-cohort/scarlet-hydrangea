@@ -78,6 +78,32 @@ export default function AdminBorrowList() {
       </p>
     );
 
+  async function handleApprove(id) {
+    try {
+      const data = await approveBorrow(id);
+      setBorrows((prevBorrowList) =>
+        prevBorrowList.map((borrow) =>
+          borrow.id === id ? data : borrow
+        )
+      );
+    } catch (err) {
+      alert(err.message);
+    }
+  };
+
+  async function handleReturn(id) {
+    try {
+      const data = await returnBorrow(id);
+      setBorrows((prevBorrowList) =>
+        prevBorrowList.map((borrow) =>
+          borrow.id === id ? data : borrow
+        )
+      );
+    } catch (err) {
+      alert(err.message);
+    }
+  };
+
   return (
     <div
       style={{
@@ -116,19 +142,23 @@ export default function AdminBorrowList() {
               <StatusBadge status={borrow.status} />
             </div>
 
-            <div style={{ marginTop: "10px"}}>
+            <div style={{ marginTop: "10px" }}>
               {borrow.status === "pending" &&
                 (<button
-                  className="btn btn-success">
+                  className="btn btn-success"
+                  onClick={() => handleApprove(borrow.id)}
+                  >
                   Approve Request
                 </button>)}
               {borrow.status === "approved" &&
                 (<button
-                  className="btn btn-secondary">
+                  className="btn btn-secondary"
+                  onClick={() => handleReturn(borrow.id)}
+                  >
                   Mark as Returned
                 </button>)}
               {borrow.status === "returned" &&
-              (<span className="note">Transaction Completed</span>)}
+                (<span className="note">Transaction Completed</span>)}
             </div>
           </div>
         ))}
