@@ -40,12 +40,26 @@ export default function ToolDetail() {
 
   const handleRequest = async () => {
     setRequestError("");
+
+    // Must be logged in for JWT-protected endpoint
+    const token =
+      localStorage.getItem("token") || localStorage.getItem("access_token");
+    if (!token) {
+      setRequestError("Please log in to request a borrow.");
+      return;
+    }
+
+    // Define toolId safely (THIS fixes your "toolId not defined" bug)
+    const toolId = Number(tool?.id);
+    if (!Number.isFinite(toolId)) {
+      setRequestError("Could not determine tool id. Please refresh and try again.");
+      return;
+    }
+
     setIsSubmitting(true);
-    
     try {
       // Send BOTH keys so this works regardless of whether api.js expects item_id or tool_id
       await createBorrowRequest({ item_id: toolId, tool_id: toolId });
-
       setRequestSent(true);
     } catch (err) {
       setRequestError(err?.message || "Could not send request. Please try again.");
