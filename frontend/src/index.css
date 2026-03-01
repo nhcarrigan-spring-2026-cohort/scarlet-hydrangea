@@ -363,3 +363,27 @@ h3 {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(59, 130, 246, 0.5);
 }
+
+/* ==================
+   Aprove & Return
+   =============== */
+
+.btn-success {
+  background-color: #127c39;
+  border: none;
+  color: #fff;
+}
+
+.btn-success:hover {
+  background-color: #0c5e2a;
+}
+
+.btn-secondary {
+  background-color: #303030;
+  border: none;
+  color: #fff;
+}
+
+.btn-secondary:hover {
+  background-color: #272727;
+}
