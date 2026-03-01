@@ -231,3 +231,21 @@ export async function getAllBorrows() {
   // Try both /api/borrows and /api/borrows/ to avoid redirect preflight failures.
   return await apiRequestTryBothSlashes("/api/borrows", { auth: true });
 }
+
+/* =============================
+   Approve and return borrows
+============================= */
+
+export async function approveBorrow(id) {
+  return await apiRequestTryBothSlashes(`/api/borrows/${id}/approve`, {
+    method: "PATCH",
+    auth: true,
+  });
+}
+
+export async function returnBorrow(id) {
+  return await apiRequestTryBothSlashes(`/api/borrows/${id}/return`, {
+    method: "PATCH",
+    auth: true,
+  });
+}
