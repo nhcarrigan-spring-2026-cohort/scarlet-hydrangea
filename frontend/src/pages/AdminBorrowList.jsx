@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getAllBorrows } from "../lib/api";
+import { getAllBorrows, approveBorrow, returnBorrow } from "../lib/api";
 import StatusBadge from "../components/StatusBadge";
 
 export default function AdminBorrowList() {
@@ -78,6 +78,32 @@ export default function AdminBorrowList() {
       </p>
     );
 
+  async function handleApprove(id) {
+    try {
+      const data = await approveBorrow(id);
+      setBorrows((prevBorrowList) =>
+        prevBorrowList.map((borrow) =>
+          borrow.id === id ? data : borrow
+        )
+      );
+    } catch (err) {
+      alert(err.message);
+    }
+  };
+
+  async function handleReturn(id) {
+    try {
+      const data = await returnBorrow(id);
+      setBorrows((prevBorrowList) =>
+        prevBorrowList.map((borrow) =>
+          borrow.id === id ? data : borrow
+        )
+      );
+    } catch (err) {
+      alert(err.message);
+    }
+  };
+
   return (
     <div
       style={{
@@ -114,6 +140,25 @@ export default function AdminBorrowList() {
 
             <div style={{ marginTop: "10px" }}>
               <StatusBadge status={borrow.status} />
+            </div>
+
+            <div style={{ marginTop: "10px" }}>
+              {borrow.status === "pending" &&
+                (<button
+                  className="btn btn-success"
+                  onClick={() => handleApprove(borrow.id)}
+                  >
+                  Approve Request
+                </button>)}
+              {borrow.status === "approved" &&
+                (<button
+                  className="btn btn-secondary"
+                  onClick={() => handleReturn(borrow.id)}
+                  >
+                  Mark as Returned
+                </button>)}
+              {borrow.status === "returned" &&
+                (<span className="note">Transaction Completed</span>)}
             </div>
           </div>
         ))}
