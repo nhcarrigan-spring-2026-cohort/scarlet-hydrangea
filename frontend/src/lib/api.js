@@ -229,7 +229,7 @@ export async function getMyBorrows() {
 export async function getAllBorrows() {
   // GET can still preflight if Authorization header is present.
   // Try both /api/borrows and /api/borrows/ to avoid redirect preflight failures.
-  return await apiRequestTryBothSlashes("/api/borrows", { auth: true });
+  return await apiRequestTryBothSlashes("/api/borrows/", { auth: true });
 }
 
 /* =============================
